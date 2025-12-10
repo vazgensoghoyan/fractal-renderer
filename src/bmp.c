@@ -65,7 +65,7 @@ int init_empty_bmp(bmp_t *bmp, int width, int height) {
     return 0;
 }
 
-int load_bmp(const char *filepath, bmp_t *bmp) {
+int load_bmp(bmp_t *bmp, const char *filepath) {
     if (!filepath || !bmp) return 1;
     FILE *f = fopen(filepath, "rb");
     if (!f) return 1;
@@ -133,7 +133,7 @@ fail:
     return 1;
 }
 
-int set_pixel(bmp_t *bmp, int i, int j, pixel_t color) {
+int set_pixel(bmp_t *bmp, int x, int y, pixel_t color) {
     if (!bmp || !bmp->infoheader || !bmp->rows) return 1;
 
     int w = bmp->infoheader->image_width;
@@ -141,18 +141,18 @@ int set_pixel(bmp_t *bmp, int i, int j, pixel_t color) {
 
     if (h < 0) h = -h;
 
-    if (i < 0 || j < 0 || i >= h || j >= w) return 1;
+    if (x < 0 || y < 0 || y >= h || x >= w) return 1;
 
-    bmp->rows[i][j] = color;
+    bmp->rows[y][x] = color;
     return 0;
 }
 
-int put_rgb(bmp_t *bmp, int i, int j, uint8_t r, uint8_t g, uint8_t b) {
+int set_pixel_rgb(bmp_t *bmp, int i, int j, uint8_t r, uint8_t g, uint8_t b) {
     pixel_t p = { .B = b, .G = g, .R = r };
     return set_pixel(bmp, i, j, p);
 }
 
-int get_pixel(bmp_t *bmp, int i, int j, pixel_t *out_color) {
+int get_pixel(bmp_t *bmp, int x, int y, pixel_t *out_color) {
     if (!bmp || !bmp->infoheader || !bmp->rows || !out_color)
         return 1;
 
@@ -160,14 +160,14 @@ int get_pixel(bmp_t *bmp, int i, int j, pixel_t *out_color) {
     int h = bmp->infoheader->image_height;
     if (h < 0) h = -h;
 
-    if (i < 0 || j < 0 || i >= h || j >= w)
+    if (x < 0 || y < 0 || y >= h || x >= w)
         return 1;
 
-    *out_color = bmp->rows[i][j];
+    *out_color = bmp->rows[y][x];
     return 0;
 }
 
-int save_bmp(const char *filepath, bmp_t *bmp) {
+int save_bmp(bmp_t *bmp, const char *filepath) {
     if (!filepath || !bmp || !bmp->rows || !bmp->fileheader || !bmp->infoheader) return 1;
     FILE *f = fopen(filepath, "wb");
     if (!f) return 1;
@@ -264,12 +264,17 @@ int save_pixels_to_bmp(const char *filepath, pixel_t **rows, int width, int heig
 
 void free_bmp(bmp_t *bmp) {
     if (!bmp) return;
-    if (bmp->fileheader) { free(bmp->fileheader); bmp->fileheader = NULL; }
-    if (bmp->infoheader) { free(bmp->infoheader); bmp->infoheader = NULL; }
+    if (bmp->fileheader) { 
+        free(bmp->fileheader); 
+        bmp->fileheader = NULL; 
+    }
+    if (bmp->infoheader) { 
+        free(bmp->infoheader); 
+        bmp->infoheader = NULL; 
+    }
     if (bmp->rows) {
         if (bmp->rows[0]) free(bmp->rows[0]);
         free(bmp->rows);
         bmp->rows = NULL;
     }
-    free(bmp);
 }

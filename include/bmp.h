@@ -42,17 +42,25 @@ typedef struct {
 } bmp_t;
 #pragma pack(pop)
 
+
 // constructors
+
 int init_empty_bmp(bmp_t *bitmap, int width, int height);
-int load_bmp(const char *filepath, bmp_t *bitmap);
+int load_bmp(bmp_t *bitmap, const char *filepath);
+
 // desctructor
+
 void free_bmp(bmp_t *bmp);
+
 // working with pixels
-int set_pixel(bmp_t *bmp, int i, int j, pixel_t color);
-int set_pixel_rgb(bmp_t *bmp, int i, int j, uint8_t r, uint8_t g, uint8_t b);
-int get_pixel(bmp_t *bmp, int i, int j, pixel_t *out_color);
+
+int set_pixel(bmp_t *bmp, int x, int y, pixel_t color);
+int set_pixel_rgb(bmp_t *bmp, int x, int y, uint8_t r, uint8_t g, uint8_t b);
+int get_pixel(bmp_t *bmp, int x, int y, pixel_t *out_color);
+
 // saving to bmp
-int save_bmp(const char *filepath, bmp_t *bmp);
+
+int save_bmp(bmp_t *bmp, const char *filepath);
 int save_pixels_to_bmp(const char *filepath, pixel_t **rows, int width, int height);
 
 #endif // BMP_H
