@@ -1,30 +1,31 @@
 #include "bmp.h"
 
 int main(int argc, char **argv) {
-    char *target = argv[1];
-
-    char *IN_FILEPATH = argv[2];
-    char *OUT_FILEPATH = argv[3];
-
-    int X = atoi(argv[4]);
-    int Y = atoi(argv[5]);
-    int W = atoi(argv[6]);
-    int H = atoi(argv[7]);
-
-    bmp_t *bitmap = malloc(sizeof(bmp_t));
-
-    if (load_bmp(IN_FILEPATH, bitmap))
+    if (argc != 7) {
+        fprintf(stderr, "Usage: %s IN_FILE OUT_FILE X Y W H\n", argv[0]);
         return 1;
+    }
 
-    if (crop(bitmap, X, Y, W, H))
+    const char *in_filepath = argv[1];
+    const char *out_filepath = argv[2];
+
+    int X = atoi(argv[3]);
+    int Y = atoi(argv[4]);
+    int W = atoi(argv[5]);
+    int H = atoi(argv[6]);
+
+    if (W <= 0 || H <= 0) {
+        fprintf(stderr, "W and H must be positive\n");
         return 1;
+    }
 
-    if (rotate(bitmap))
-        return 1;
+    bmp_t *bmp = calloc(1, sizeof(bmp_t));
+    if (!bmp) return 1;
 
-    save_bmp(OUT_FILEPATH, bitmap);
+    if (load_bmp(in_filepath, bmp)) { fprintf(stderr, "Failed to load BMP\n"); free_bmp(bmp); return 1; }
 
-    free_bmp(bitmap);
+    if (save_bmp(out_filepath, bmp)) { fprintf(stderr, "Save failed\n"); free_bmp(bmp); return 1; }
 
+    free_bmp(bmp);
     return 0;
 }

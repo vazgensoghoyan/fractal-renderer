@@ -1,145 +1,135 @@
 #include "bmp.h"
 
-const int ALIGNMENT = 4;
+/* --- utilities --- */
 
-int calculate_padding(int size_of_el, int count) {
-    int bytes_in_row = size_of_el * count;
-    return (ALIGNMENT - bytes_in_row % ALIGNMENT) % ALIGNMENT;
+static size_t row_byte_width(uint16_t bits_per_pixel, int32_t width) {
+    // Row size in bytes rounded to 4 bytes: ((bits*width +31)/32)*4
+    return (( (size_t)bits_per_pixel * (size_t)width + 31u) / 32u) * 4u;
 }
 
-int load_bmp(char *filepath, bmp_t *bitmap) {
-    FILE *file = fopen(filepath, "rb");
-    if (!file) return 1;
+static int safe_fread(void *ptr, size_t size, size_t nmemb, FILE *f) {
+    return fread(ptr, size, nmemb, f) == nmemb ? 0 : 1;
+}
 
-    bitmap->fileheader = malloc(sizeof(bmp_fileheader_t));
-    bitmap->v5header = malloc(sizeof(bmp_v5header_t));
+/* --- core functions --- */
 
-    if (bitmap->v5header == NULL || bitmap->fileheader == NULL) return 1;
+int load_bmp(const char *filepath, bmp_t *bmp) {
+    if (!filepath || !bmp) return 1;
+    FILE *f = fopen(filepath, "rb");
+    if (!f) return 1;
 
-    fread(bitmap->fileheader, sizeof(bmp_fileheader_t), 1, file);
-    fread(bitmap->v5header, sizeof(bmp_v5header_t), 1, file);
+    bmp->fileheader = malloc(sizeof(bmp_fileheader_t));
+    bmp->infoheader = malloc(sizeof(bmp_infoheader_t));
+    if (!bmp->fileheader || !bmp->infoheader) { fclose(f); return 1; }
 
-    fseek(file, bitmap->fileheader->file_offset_to_pixels, SEEK_SET);
+    if (safe_fread(bmp->fileheader, sizeof(bmp_fileheader_t), 1, f)) goto fail;
+    if (bmp->fileheader->signature != 0x4D42) goto fail; // 'BM'
 
-    int height = bitmap->v5header->image_height;
-    int width = bitmap->v5header->image_width;
+    if (safe_fread(bmp->infoheader, sizeof(bmp_infoheader_t), 1, f)) goto fail;
 
-    int padding = calculate_padding(sizeof(pixel_t), width);
-    
-    pixel_t *pixels = calloc(width * height, sizeof(pixel_t));
-    pixel_t **pxl_array = calloc(height, sizeof(pixel_t *));
+    // Only support common uncompressed 24-bit BMP
+    if (bmp->infoheader->header_size < 40) goto fail;
+    if (bmp->infoheader->bits_per_pixel != 24) goto fail;
+    if (bmp->infoheader->compression != 0) goto fail;
 
-    if (pixels == NULL || pxl_array == NULL) return 1;
+    int32_t width = bmp->infoheader->image_width;
+    int32_t height = bmp->infoheader->image_height;
+    if (width <= 0 || height == 0) goto fail;
 
-    for (int x = 0; x < height; x++) {
-        pxl_array[x] = pixels + x * width;
-        fread(pxl_array[x], sizeof(pixel_t), width, file);
-        fseek(file, padding, SEEK_CUR);
+    int top_down = (height < 0);
+    size_t abs_height = (size_t)(top_down ? -height : height);
+    size_t abs_width = (size_t)width;
+
+    size_t row_bytes = row_byte_width(bmp->infoheader->bits_per_pixel, width);
+    size_t pixel_row_bytes = abs_width * sizeof(pixel_t);
+    size_t padding = row_bytes - pixel_row_bytes;
+
+    // allocate contiguous pixel buffer and row pointers
+    pixel_t *pixels = calloc(abs_width * abs_height, sizeof(pixel_t));
+    pixel_t **rows = calloc(abs_height, sizeof(pixel_t *));
+    if (!pixels || !rows) { free(pixels); free(rows); goto fail; }
+
+    for (size_t r = 0; r < abs_height; ++r) {
+        rows[r] = pixels + r * abs_width;
     }
 
-    bitmap->pixel_array = pxl_array;
+    // go to pixel data
+    if (fseek(f, bmp->fileheader->file_offset_to_pixels, SEEK_SET) != 0) { free(pixels); free(rows); goto fail; }
 
-    fclose(file);
+    // Read rows from file. BMP file order:
+    // if bottom-up (height>0) — first row is bottom. We want rows[0] = top,
+    // so map file row i -> rows[abs_height - 1 - i]
+    for (size_t i = 0; i < abs_height; ++i) {
+        size_t target_row = top_down ? i : (abs_height - 1 - i);
+        if (fread(rows[target_row], sizeof(pixel_t), abs_width, f) != abs_width) { free(pixels); free(rows); goto fail; }
+        if (padding) {
+            if (fseek(f, (long)padding, SEEK_CUR) != 0) { free(pixels); free(rows); goto fail; }
+        }
+    }
 
+    bmp->rows = rows;
+    fclose(f);
     return 0;
+
+fail:
+    fclose(f);
+    free(bmp->fileheader);
+    free(bmp->infoheader);
+    bmp->fileheader = bmp->infoheader = NULL;
+    return 1;
 }
 
-int crop(bmp_t *bmp, int x, int y, int width, int height) {
-    if (width <= 0 || x < 0 || bmp->v5header->image_width < x + width)
-		return 1;
-    if (height <= 0 || y < 0 || bmp->v5header->image_height < y + height)
-		return 1;
+int save_bmp(const char *filepath, bmp_t *bmp) {
+    if (!filepath || !bmp || !bmp->rows || !bmp->fileheader || !bmp->infoheader) return 1;
+    FILE *f = fopen(filepath, "wb");
+    if (!f) return 1;
 
-    y = bmp->v5header->image_height - y - height;
+    int32_t width = bmp->infoheader->image_width;
+    int32_t height = bmp->infoheader->image_height;
+    if (width <= 0 || height <= 0) { fclose(f); return 1; }
 
-    pixel_t *pixels = calloc(width * height, sizeof(pixel_t));
-    pixel_t **pxl_array = calloc(height, sizeof(pixel_t *));
+    uint16_t bpp = bmp->infoheader->bits_per_pixel;
+    size_t row_bytes = row_byte_width(bpp, width);
+    size_t pixel_row_bytes = (size_t)width * sizeof(pixel_t);
+    size_t padding = row_bytes - pixel_row_bytes;
+    size_t image_size = row_bytes * (size_t)height;
 
-    if (pixels == NULL || pxl_array == NULL) return 1;
+    // prepare headers to write; we write a standard BITMAPINFOHEADER (40 bytes) and bottom-up image
+    bmp_fileheader_t fh = *bmp->fileheader;
+    bmp_infoheader_t ih = *bmp->infoheader;
 
-    for (int i = 0; i < height; i++) {
-        pxl_array[i] = pixels + i * width;
+    ih.image_height = height; // positive => bottom-up
+    ih.image_size = (uint32_t)image_size;
 
-        for (int j = 0; j < width; j++)
-            pxl_array[i][j] = bmp->pixel_array[y+i][x+j];
+    fh.file_offset_to_pixels = sizeof(bmp_fileheader_t) + ih.header_size;
+    fh.file_size = fh.file_offset_to_pixels + (uint32_t)image_size;
+
+    // write headers
+    if (fwrite(&fh, sizeof(bmp_fileheader_t), 1, f) != 1) { fclose(f); return 1; }
+    if (fwrite(&ih, sizeof(bmp_infoheader_t), 1, f) != 1) { fclose(f); return 1; }
+
+    // pad buffer for writing padding bytes
+    uint8_t padbuf[4] = {0,0,0,0};
+
+    // write rows in bottom-up order: from last (bottom) to first (top)
+    for (int r = height - 1; r >= 0; --r) {
+        if (fwrite(bmp->rows[r], sizeof(pixel_t), (size_t)width, f) != (size_t)width) { fclose(f); return 1; }
+        if (padding) {
+            if (fwrite(padbuf, 1, padding, f) != padding) { fclose(f); return 1; }
+        }
     }
 
-    int padding = calculate_padding(sizeof(pixel_t), width);
-
-    bmp->v5header->image_height = height;
-    bmp->v5header->image_width = width;
-    bmp->v5header->image_size = (sizeof(pixel_t) * width + padding) * height;
-    bmp->fileheader->file_size = bmp->v5header->image_size + bmp->fileheader->file_offset_to_pixels;
-    
-    free(bmp->pixel_array[0]);
-    free(bmp->pixel_array);
-
-    bmp->pixel_array = pxl_array;
-
+    fclose(f);
     return 0;
-}
-
-int rotate(bmp_t *bmp) {
-    int height = bmp->v5header->image_height;
-    int width = bmp->v5header->image_width;
-
-    pixel_t *pixels = calloc(width * height, sizeof(pixel_t));
-    pixel_t **new_pixel_array = calloc(width, sizeof(pixel_t *));
-
-    if (pixels == NULL || new_pixel_array == NULL) return 1;
-    
-    for (int i = 0; i < width; i++) {
-        new_pixel_array[i] = pixels + i * height;
-
-        for (int j = 0; j < height; j++)
-            new_pixel_array[i][j] = bmp->pixel_array[j][width-i-1];
-    }
-
-    int padding = calculate_padding(sizeof(pixel_t), height);
-    int new_image_size = (sizeof(pixel_t) * height + padding) * width;
-
-    bmp->fileheader->file_size = new_image_size + bmp->fileheader->file_offset_to_pixels;
-    bmp->v5header->image_size = new_image_size;
-
-    bmp->v5header->image_height = width;
-    bmp->v5header->image_width = height;
-
-    free(bmp->pixel_array[0]);
-    free(bmp->pixel_array);
-
-    bmp->pixel_array = new_pixel_array;
-
-    return 0;
-}
-
-void save_bmp(char *filepath, bmp_t *bmp) {
-    FILE *file = fopen(filepath, "wb");
-    const int ZERO = 0;
-
-    fwrite(bmp->fileheader, sizeof(bmp_fileheader_t), 1, file);
-    fwrite(bmp->v5header, sizeof(bmp_v5header_t), 1, file);
-
-    fseek(file, bmp->fileheader->file_offset_to_pixels, SEEK_SET);
-
-    int height = bmp->v5header->image_height;
-    int width = bmp->v5header->image_width;
-
-    int padding = calculate_padding(sizeof(pixel_t), width);
-
-    for (int i = 0; i < height; i++) {
-        fwrite(bmp->pixel_array[i], sizeof(pixel_t), width, file);
-        fwrite(&ZERO, padding, 1, file);
-    }
-
-    fclose(file);
 }
 
 void free_bmp(bmp_t *bmp) {
-    free(bmp->fileheader);
-    free(bmp->v5header);
-
-    free(bmp->pixel_array[0]);
-    free(bmp->pixel_array);
-
+    if (!bmp) return;
+    if (bmp->fileheader) free(bmp->fileheader);
+    if (bmp->infoheader) free(bmp->infoheader);
+    if (bmp->rows) {
+        free(bmp->rows[0]);
+        free(bmp->rows);
+    }
     free(bmp);
 }
