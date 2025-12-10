@@ -12,6 +12,59 @@ static int safe_fread(void *ptr, size_t size, size_t nmemb, FILE *f) {
 
 /* --- core functions --- */
 
+int init_empty_bmp(bmp_t *bmp, int width, int height) {
+    if (!bmp || width <= 0 || height <= 0)
+        return 1;
+
+    bmp->fileheader = malloc(sizeof(bmp_fileheader_t));
+    bmp->infoheader = malloc(sizeof(bmp_infoheader_t));
+    bmp->rows = NULL;
+
+    if (!bmp->fileheader || !bmp->infoheader)
+        return 1;
+
+    // Prepare headers
+    bmp_fileheader_t *fh = bmp->fileheader;
+    bmp_infoheader_t *ih = bmp->infoheader;
+
+    const int bpp = 24;
+    size_t row_bytes = ((width * 3 + 3) / 4) * 4;
+    size_t image_size = row_bytes * (size_t)height;
+
+    fh->signature = 0x4D42; // 'BM'
+    fh->reserved1 = 0;
+    fh->reserved2 = 0;
+    fh->file_offset_to_pixels = sizeof(bmp_fileheader_t) + sizeof(bmp_infoheader_t);
+    fh->file_size = fh->file_offset_to_pixels + image_size;
+
+    ih->header_size = 40;
+    ih->image_width = width;
+    ih->image_height = height;        // bottom-up (positive)
+    ih->planes = 1;
+    ih->bits_per_pixel = bpp;
+    ih->compression = 0;
+    ih->image_size = image_size;
+    ih->x_pixels_per_meter = 2835;    // ~72 DPI
+    ih->y_pixels_per_meter = 2835;
+    ih->colors_used = 0;
+    ih->important_colors = 0;
+
+    // Allocate pixel buffer
+    pixel_t *pixels = calloc((size_t)width * height, sizeof(pixel_t));
+    pixel_t **rows = calloc(height, sizeof(pixel_t *));
+    if (!pixels || !rows) {
+        free(pixels);
+        free(rows);
+        return 1;
+    }
+
+    for (int i = 0; i < height; i++)
+        rows[i] = pixels + i * width;
+
+    bmp->rows = rows;
+    return 0;
+}
+
 int load_bmp(const char *filepath, bmp_t *bmp) {
     if (!filepath || !bmp) return 1;
     FILE *f = fopen(filepath, "rb");
@@ -78,6 +131,40 @@ fail:
     bmp->fileheader = NULL;
     bmp->infoheader = NULL;
     return 1;
+}
+
+int set_pixel(bmp_t *bmp, int i, int j, pixel_t color) {
+    if (!bmp || !bmp->infoheader || !bmp->rows) return 1;
+
+    int w = bmp->infoheader->image_width;
+    int h = bmp->infoheader->image_height;
+
+    if (h < 0) h = -h;
+
+    if (i < 0 || j < 0 || i >= h || j >= w) return 1;
+
+    bmp->rows[i][j] = color;
+    return 0;
+}
+
+int put_rgb(bmp_t *bmp, int i, int j, uint8_t r, uint8_t g, uint8_t b) {
+    pixel_t p = { .B = b, .G = g, .R = r };
+    return set_pixel(bmp, i, j, p);
+}
+
+int get_pixel(bmp_t *bmp, int i, int j, pixel_t *out_color) {
+    if (!bmp || !bmp->infoheader || !bmp->rows || !out_color)
+        return 1;
+
+    int w = bmp->infoheader->image_width;
+    int h = bmp->infoheader->image_height;
+    if (h < 0) h = -h;
+
+    if (i < 0 || j < 0 || i >= h || j >= w)
+        return 1;
+
+    *out_color = bmp->rows[i][j];
+    return 0;
 }
 
 int save_bmp(const char *filepath, bmp_t *bmp) {
