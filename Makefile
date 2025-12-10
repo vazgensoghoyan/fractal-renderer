@@ -1,22 +1,24 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CC = gcc
+CFLAGS = -std=c17 -Wall -Wextra -Iinclude
 
 TARGET = program
 
-SRCS = main.cpp
-OBJS = $(SRCS:.cpp=.o)
+SRC_DIR = src
+INC_DIR = include
+
+SRCS = main.c $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(SRCS:.c=.o)
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -o $(TARGET) $(LDFLAGS)
+	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) out.bmp
 
 clean:
 	rm -f $(OBJS) $(TARGET)

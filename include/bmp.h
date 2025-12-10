@@ -46,6 +46,7 @@ int load_bmp(const char *filepath, bmp_t *bitmap);
 int crop(bmp_t *bmp, int x, int y, int width, int height);
 int rotate(bmp_t *bmp);
 int save_bmp(const char *filepath, bmp_t *bmp);
+int save_pixels_to_bmp(const char *filepath, pixel_t **rows, int width, int height);
 void free_bmp(bmp_t *bmp);
 
 #endif
