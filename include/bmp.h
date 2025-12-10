@@ -1,5 +1,5 @@
-#ifndef BMP_H_
-#define BMP_H_
+#ifndef BMP_H
+#define BMP_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,4 +49,4 @@ int save_bmp(const char *filepath, bmp_t *bmp);
 int save_pixels_to_bmp(const char *filepath, pixel_t **rows, int width, int height);
 void free_bmp(bmp_t *bmp);
 
-#endif
+#endif // BMP_H
