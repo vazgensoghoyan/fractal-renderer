@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <string.h>
 
 #pragma pack(push, 1)
 typedef struct {
@@ -24,7 +23,7 @@ typedef struct {
 typedef struct {
     uint32_t header_size;     // must be 40 for BITMAPINFOHEADER
     int32_t  image_width;
-    int32_t  image_height;    // if positive: bottom-up; if negative: top-down
+    int32_t  image_height;    // positive => bottom-up; negative => top-down
     uint16_t planes;
     uint16_t bits_per_pixel;  // expect 24
     uint32_t compression;     // expect 0 (BI_RGB)
@@ -34,33 +33,18 @@ typedef struct {
     uint32_t colors_used;
     uint32_t important_colors;
 } bmp_infoheader_t; // 40 bytes
+#pragma pack(pop)
 
 typedef struct {
     bmp_fileheader_t *fileheader;
     bmp_infoheader_t *infoheader;
-    pixel_t **rows;    // pointers to each row, rows[0] = top row
+    pixel_t **rows;    // rows[0] == top row pointer, contiguous pixel buffer at rows[0]
 } bmp_t;
-#pragma pack(pop)
 
-
-// constructors
-
-int init_empty_bmp(bmp_t *bitmap, int width, int height);
-int load_bmp(bmp_t *bitmap, const char *filepath);
-
-// desctructor
-
-void free_bmp(bmp_t *bmp);
-
-// working with pixels
-
+int init_empty_bmp(bmp_t *bmp, int width, int height); /* allocate zeroed image */
 int set_pixel(bmp_t *bmp, int x, int y, pixel_t color);
 int set_pixel_rgb(bmp_t *bmp, int x, int y, uint8_t r, uint8_t g, uint8_t b);
 int get_pixel(bmp_t *bmp, int x, int y, pixel_t *out_color);
-
-// saving to bmp
-
-int save_bmp(bmp_t *bmp, const char *filepath);
-int save_pixels_to_bmp(const char *filepath, pixel_t **rows, int width, int height);
+void free_bmp(bmp_t *bmp);
 
 #endif // BMP_H

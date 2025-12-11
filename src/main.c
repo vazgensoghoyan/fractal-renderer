@@ -1,4 +1,6 @@
+#include "bmp_io.h"
 #include "bmp.h"
+
 #include "stdio.h"
 
 void draw_line_dda(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t color) {
@@ -24,7 +26,6 @@ void draw_line_dda(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t color) {
         y += y_inc;
     }
 }
-
 
 void draw_line_bresenham(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t color) {
     int dx = abs(x1 - x0);
@@ -64,7 +65,7 @@ void draw_image(bmp_t *bmp, int width, int height) {
     // 1. заливка фона белым
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            set_pixel(bmp, y, x, white);
+            set_pixel(bmp, x, y, white);
         }
     }
 
@@ -89,21 +90,20 @@ void draw_image(bmp_t *bmp, int width, int height) {
 
 
 void render(const char* output_file) {
-    int width = 640;
-    int height = 480;
+    int width = 500;
+    int height = 500;
 
     bmp_t bmp;
     init_empty_bmp(&bmp, width, height);
     
     draw_image(&bmp, width, height);
 
-    save_bmp(&bmp, output_file);
+    bmp_save(&bmp, output_file);
 
     free_bmp(&bmp);
 }
 
 int main(int argc, char** argv) {
-    
     if (argc != 2) { fprintf(stderr, "What are you doing man\n"); return 1; }
 
     char* output_file = argv[1];
