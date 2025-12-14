@@ -1,4 +1,5 @@
-#include "bmp_io.h"
+#include "bmp_io.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -12,8 +13,8 @@ int bmp_load(bmp_t *bmp, const char *path) {
     FILE *f = fopen(path, "rb");
     if (!f) return 1;
 
-    bmp->fileheader = malloc(sizeof(bmp_fileheader_t));
-    bmp->infoheader = malloc(sizeof(bmp_infoheader_t));
+    bmp->fileheader = new bmp_fileheader_t;
+    bmp->infoheader = new bmp_infoheader_t;
     bmp->rows = NULL;
 
     if (!bmp->fileheader || !bmp->infoheader) {
@@ -23,15 +24,22 @@ int bmp_load(bmp_t *bmp, const char *path) {
         return 1;
     }
 
-    if (fread(bmp->fileheader, sizeof(bmp_fileheader_t), 1, f) != 1) goto fail;
-    if (bmp->fileheader->signature != 0x4D42) goto fail;
+    if (fread(bmp->fileheader, sizeof(bmp_fileheader_t), 1, f) != 1) 
+        return 1;
+        // goto fail;
+    if (bmp->fileheader->signature != 0x4D42) 
+        return 1;
+        // goto fail;
 
-    if (fread(bmp->infoheader, sizeof(bmp_infoheader_t), 1, f) != 1) goto fail;
+    if (fread(bmp->infoheader, sizeof(bmp_infoheader_t), 1, f) != 1) 
+        return 1;    
+        // goto fail
 
     if (bmp->infoheader->bits_per_pixel != 24 ||
         bmp->infoheader->compression != 0 ||
         bmp->infoheader->header_size < 40)
-        goto fail;
+        return 1;
+        // goto fail;
 
     int w = bmp->infoheader->image_width;
     int h = bmp->infoheader->image_height;
@@ -44,8 +52,8 @@ int bmp_load(bmp_t *bmp, const char *path) {
     size_t pixel_bytes = W * sizeof(pixel_t);
     size_t padding = row_bytes - pixel_bytes;
 
-    pixel_t *buf = calloc(W * H, sizeof(pixel_t));
-    pixel_t **rows = calloc(H, sizeof(pixel_t *));
+    pixel_t *buf = (pixel_t*)calloc(W * H, sizeof(pixel_t));
+    pixel_t **rows = (pixel_t**)calloc(H, sizeof(pixel_t *));
     if (!buf || !rows) {
         free(buf); free(rows);
         goto fail;

@@ -1,5 +1,5 @@
-#include "bmp_io.h"
-#include "bmp.h"
+#include "bmp_io.hpp"
+#include "bmp.hpp"
 
 #include "stdio.h"
 
@@ -56,18 +56,25 @@ void draw_line_bresenham(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t col
     }
 }
 
-void draw_image(bmp_t *bmp, int width, int height) {
-    pixel_t red   = { .R = 255, .G = 0,   .B = 0 };
-    pixel_t green = { .R = 0,   .G = 255, .B = 0 };
-    pixel_t blue  = { .R = 0,   .G = 0,   .B = 255 };
-    pixel_t white = { .R = 255, .G = 255, .B = 255 };
-
-    // 1. заливка фона белым
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            set_pixel(bmp, x, y, white);
+void fill_background(bmp_t *bmp, pixel_t color) {
+    for (int x = 0; x < bmp->infoheader->image_width; x++) {
+        for (int y = 0; y < bmp->infoheader->image_height; y++) {
+            set_pixel(bmp, x, y, color);
         }
     }
+}
+
+void draw_image(bmp_t *bmp) {
+    int width = bmp->infoheader->image_width;
+    int height = bmp->infoheader->image_height;
+
+    pixel_t red   = { 0, 0, 255 };
+    pixel_t green = { 0, 255, 0 };
+    pixel_t blue  = { 255, 0, 0 };
+    pixel_t white = { 255, 255, 255 };
+
+    // заливка фона
+    fill_background(bmp, red);
 
     // 2. диагонали через центр (DDA)
     draw_line_dda(bmp, 0, 0, width - 1, height - 1, red);
@@ -91,12 +98,12 @@ void draw_image(bmp_t *bmp, int width, int height) {
 
 void render(const char* output_file) {
     int width = 500;
-    int height = 500;
+    int height = 700;
 
     bmp_t bmp;
     init_empty_bmp(&bmp, width, height);
     
-    draw_image(&bmp, width, height);
+    draw_image(&bmp);
 
     bmp_save(&bmp, output_file);
 

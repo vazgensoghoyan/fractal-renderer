@@ -1,4 +1,5 @@
-#include "bmp.h"
+#include "bmp.hpp"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,8 +11,8 @@ int init_empty_bmp(bmp_t *bmp, int width, int height) {
     if (!bmp || width <= 0 || height <= 0)
         return 1;
 
-    bmp->fileheader = malloc(sizeof(bmp_fileheader_t));
-    bmp->infoheader = malloc(sizeof(bmp_infoheader_t));
+    bmp->fileheader = new bmp_fileheader_t;
+    bmp->infoheader = new bmp_infoheader_t;
     if (!bmp->fileheader || !bmp->infoheader)
         return 1;
 
@@ -39,8 +40,8 @@ int init_empty_bmp(bmp_t *bmp, int width, int height) {
     ih->colors_used = 0;
     ih->important_colors = 0;
 
-    pixel_t *buf = calloc((size_t)width * height, sizeof(pixel_t));
-    pixel_t **rows = calloc(height, sizeof(pixel_t *));
+    pixel_t *buf = (pixel_t*)calloc((size_t)width * height, sizeof(pixel_t));
+    pixel_t **rows = (pixel_t**)calloc(height, sizeof(pixel_t *));
     if (!buf || !rows) {
         free(buf); free(rows);
         return 1;
