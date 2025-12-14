@@ -71,20 +71,22 @@ Complex Complex::operator-(const Complex& other) const {
 }
 
 Complex Complex::operator*(const Complex& other) const {
-    double new_modulus = get_modulus() * other.get_modulus();
-    double new_arg = get_arg() + other.get_arg();
+    double new_real = real_ * other.real_ - imag_ * other.imag_;
+    double new_imag = real_ * other.imag_ + imag_ * other.real_;
 
-    return Trigonometric(new_modulus, new_arg);
+    return Algebraic(new_real, new_imag);
 }
 
 Complex Complex::operator/(const Complex& other) const {
-    if (other.get_modulus() == 0)
+    double denom = other.real_ * other.real_ + other.imag_ * other.imag_;
+
+    if (denom == 0)
         throw std::runtime_error("Cant divide by complex zero");
 
-    double new_modulus = get_modulus() / other.get_modulus();
-    double new_arg = get_arg() - other.get_arg();
+    double new_real = (real_ * other.real_ + imag_ * other.imag_) / denom;
+    double new_imag = (imag_ * other.real_ - real_ * other.imag_) / denom;
 
-    return Trigonometric(new_modulus, new_arg);
+    return Algebraic(new_real, new_imag);
 }
 
 // methods
@@ -103,6 +105,5 @@ Complex Complex::pow(int n) const { // simple recursive binary pow
 // to string
 
 std::string Complex::to_string() const {
-    // TODO
-    return "";
+    return std::format("{} + i * {}", real_, imag_);
 }
