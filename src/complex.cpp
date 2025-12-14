@@ -2,38 +2,25 @@
 
 // utils
 
+static const double PI = acos(-1.0);
+
 double normalize_arg(double arg) { // to [0, 2pi)
-    double normalized_arg = std::fmod(arg, 2 * M_PI);
-    if (normalized_arg < 0) {
-        normalized_arg += 2 * M_PI;
-    }
-    return normalized_arg;
+    double res = std::fmod(arg, 2 * PI);
+
+    if (res < 0) res += 2 * PI;
+
+    return res;
 }
 
 // private empty constructor
 
-Complex::Complex(double real, double imag, double modulus, double arg)
-    : real_(real)
-    , imag_(imag)
-    , modulus_(modulus)
-    , arg_(arg)
-{
-    if (modulus_ == 0)
-        arg_ = 0;
-}
+Complex::Complex(double real, double imag) : real_(real), imag_(imag)
+{ }
 
 // little public fabric
 
 Complex Complex::Algebraic(double real, double imag) {
-    double modulus = sqrt(real * real + imag * imag);
-
-    double arg = atan2(imag, real);
-
-    if (arg < 0) { // for arg to be in [0, 2pi)
-        arg += 2 * M_PI;
-    }
-    
-    return Complex(real, imag, modulus, arg);
+    return Complex(real, imag);
 }
 
 Complex Complex::Trigonometric(double modulus, double arg) {
@@ -41,29 +28,33 @@ Complex Complex::Trigonometric(double modulus, double arg) {
         throw std::domain_error("Modulus must be non-negative");
     }
 
-    double normalized_arg = normalize_arg(arg);
+    double norm_arg = normalize_arg(arg);
 
-    double real = modulus * cos(normalized_arg);
-    double imag = modulus * sin(normalized_arg);
+    double real = modulus * cos(norm_arg);
+    double imag = modulus * sin(norm_arg);
 
-    return Complex(real, imag, modulus, normalized_arg);
+    return Complex(real, imag);
+}
+
+// properties
+
+double Complex::get_modulus() const {
+    return std::hypot(real_, imag_);
+}
+
+double Complex::get_arg() const {
+    double arg = atan2(imag_, real_);
+    return normalize_arg(arg);
 }
 
 // unary operators
 
 Complex Complex::operator-() const {
-    double new_arg = arg_ - M_PI; 
-    if (new_arg < 0) {
-        new_arg += 2 * M_PI;
-    }
-
-    return Complex(-real_, -imag_, modulus_, new_arg);
+    return Complex(-real_, -imag_);
 }
 
 Complex Complex::operator~() const { // conjugate
-    double new_arg = normalize_arg(M_PI - arg_);
-
-    return Complex(real_, -imag_, modulus_, new_arg);
+    return Complex(real_, -imag_);
 }
 
 // binary operators
@@ -72,7 +63,7 @@ Complex Complex::operator+(const Complex& other) const {
     double new_real = real_ + other.real_;
     double new_imag = imag_ + other.imag_;
 
-    return Complex::Algebraic(new_real, new_imag);
+    return Algebraic(new_real, new_imag);
 }
 
 Complex Complex::operator-(const Complex& other) const {
@@ -80,19 +71,38 @@ Complex Complex::operator-(const Complex& other) const {
 }
 
 Complex Complex::operator*(const Complex& other) const {
-    double new_modulus = modulus_ * other.modulus_;
-    double new_arg = arg_ + other.arg_;
+    double new_modulus = get_modulus() * other.get_modulus();
+    double new_arg = get_arg() + other.get_arg();
 
-    return Complex::Trigonometric(new_modulus, new_arg);
+    return Trigonometric(new_modulus, new_arg);
 }
 
 Complex Complex::operator/(const Complex& other) const {
-    double new_modulus = modulus_ / other.modulus_;
-    double new_arg = arg_ - other.arg_;
+    if (other.get_modulus() == 0)
+        throw std::runtime_error("Cant divide by complex zero");
 
-    return Complex::Trigonometric(new_modulus, new_arg);
+    double new_modulus = get_modulus() / other.get_modulus();
+    double new_arg = get_arg() - other.get_arg();
+
+    return Trigonometric(new_modulus, new_arg);
 }
 
 // methods
 
+std::vector<Complex> Complex::get_roots(int n) const {
+    // TODO
+    return {};
+}
 
+Complex Complex::pow(int n) const { // simple recursive binary pow
+    double new_modulus = std::pow(get_modulus(), n);
+    double new_arg = get_arg() * n;
+    return Trigonometric(new_modulus, new_arg);
+}
+
+// to string
+
+std::string Complex::to_string() const {
+    // TODO
+    return "";
+}
