@@ -7,35 +7,42 @@
 #include <cmath>
 #include <stdexcept>
 
-class Complex {
+namespace iheay::math {
 
-public:
-    static Complex Algebraic(double real, double imag);
-    static Complex Trigonometric(double modulus, double arg);
+    class Complex {
 
-    double get_modulus() const;
-    double get_arg() const; // in [0, 2pi)
+    public:
+        static Complex Zero();
+        static Complex Algebraic(double real, double imag);
+        static Complex Trigonometric(double modulus, double arg);
 
-    Complex operator+(const Complex& other) const;
-    Complex operator-(const Complex& other) const;
-    Complex operator*(const Complex& other) const;
-    Complex operator/(const Complex& other) const;
+        double get_real() const;
+        double get_imag() const;
+        double get_modulus() const;
+        double get_arg() const; // in [0, 2pi)
 
-    Complex operator-() const;
-    Complex operator~() const; // conjugate 
+        Complex operator+(const Complex& other) const;
+        Complex operator-(const Complex& other) const;
+        Complex operator*(const Complex& other) const;
+        Complex operator/(const Complex& other) const;
 
-    std::vector<Complex> get_roots(int n) const;
-    Complex pow(int n) const;
+        Complex operator-() const;
+        Complex operator~() const; // conjugate 
 
-    std::string to_string() const;
+        std::vector<Complex> get_roots(int n) const;
+        Complex pow(int n) const;
 
-private:
-    Complex(double real, double imag);
+        std::string to_string() const;
 
-private:
-    double real_;
-    double imag_;
+    private:
+        Complex(double real, double imag);
 
-};
+    private:
+        double real_;
+        double imag_;
+
+    };
+    
+}
 
 #endif // COMPLEX_HPP

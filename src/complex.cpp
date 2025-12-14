@@ -1,5 +1,7 @@
 #include "complex.hpp"
 
+using namespace iheay::math;
+
 // utils
 
 static const double PI = acos(-1.0);
@@ -12,12 +14,15 @@ double normalize_arg(double arg) { // to [0, 2pi)
     return res;
 }
 
-// private empty constructor
+// private constructor
 
-Complex::Complex(double real, double imag) : real_(real), imag_(imag)
-{ }
+Complex::Complex(double real, double imag) : real_(real), imag_(imag) { }
 
 // little public fabric
+
+Complex Complex::Zero() {
+    return Complex(0, 0);
+}
 
 Complex Complex::Algebraic(double real, double imag) {
     return Complex(real, imag);
@@ -37,6 +42,14 @@ Complex Complex::Trigonometric(double modulus, double arg) {
 }
 
 // properties
+
+double Complex::get_real() const {
+    return real_;
+}
+
+double Complex::get_imag() const {
+    return imag_;
+}
 
 double Complex::get_modulus() const {
     return std::hypot(real_, imag_);
@@ -92,8 +105,17 @@ Complex Complex::operator/(const Complex& other) const {
 // methods
 
 std::vector<Complex> Complex::get_roots(int n) const {
-    // TODO
-    return {};
+    std::vector<Complex> roots(n);
+    
+    double res_modulus = std::pow(get_modulus(), 1.0 / n);
+    double arg_i = get_arg() / n;
+
+    for (int i = 0; i < n; i++) {
+        roots[i] = Trigonometric(res_modulus, arg_i);
+        arg_i += 2 * PI / n;
+    }
+
+    return roots;
 }
 
 Complex Complex::pow(int n) const { // simple recursive binary pow
