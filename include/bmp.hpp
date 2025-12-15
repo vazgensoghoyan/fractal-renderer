@@ -9,20 +9,30 @@
 
 class Bmp {
 public:
-    void load(const std::string& path);
+    static Bmp empty();
+    static Bmp load(const std::string& path);
+    
     void save(const std::string& path) const;
 
-    const Pixel& at(int x, int y) const;
+    int get_width() const;
+    int get_height() const;
+
+    void set_pixel(int x, int y, const Pixel& color);
+    const Pixel& get_pixel(int x, int y) const;
 
     void set_pixel();
 
 private:
-    static constexpr int ALIGNMENT = 4;
+    Bmp(const BmpFileHeader& file_h, const BmpV5Header& v5_h, const std::vector<Pixel>& p);
 
-    BmpFileHeader fileHeader{};
-    BmpV5Header v5Header{};
+    static int padding(int width);
 
-    std::vector<Pixel> pixels;
+private:
+    static constexpr int c_ALIGNMENT = 4;
 
-    int padding() const;
+    BmpFileHeader m_file_header;
+    BmpV5Header m_v5_header;
+
+    std::vector<Pixel> m_pixels;
+
 };
