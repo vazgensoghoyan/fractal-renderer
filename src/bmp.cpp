@@ -10,7 +10,7 @@ uint32_t Bmp::row_size_bytes(int width) {
 
 Bmp::Bmp() = default;
 
-Bmp::Bmp(int width, int height, const std::vector<Pixel> pixels)
+Bmp::Bmp(int width, int height, const std::vector<Pixel>& pixels)
     : m_width(width)
     , m_height(height)
     , m_pixels(pixels)
@@ -19,7 +19,7 @@ Bmp::Bmp(int width, int height, const std::vector<Pixel> pixels)
 // little public fabric
 
 Bmp Bmp::empty(int width, int height) {
-    Pixel white_color(255, 255, 255);
+    Pixel white_color{ 255, 255, 255 };
     return empty(width, height, white_color);
 }
 
