@@ -25,7 +25,7 @@ Bmp Bmp::empty(int width, int height) {
     return empty(width, height, white_color);
 }
 
-Bmp Bmp::empty(int width, int height, const Pixel& pixel) {
+Bmp Bmp::empty(int width, int height, Pixel pixel) {
     std::vector<Pixel> pixels(width * height, pixel);
     return Bmp(width, height, pixels);
 }
@@ -94,21 +94,21 @@ int Bmp::get_height() const {
 
 // pixel property
     
-void Bmp::set_pixel(int x, int y, const Pixel& pixel) {
+void Bmp::set_pixel(int x, int y, Pixel pixel) {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
         throw std::out_of_range("Pixel out of bounds");
 
     m_pixels[y * m_width + x] = pixel;
 }
     
-bool Bmp::set_pixel_unsafe(int x, int y, const Pixel& pixel) {
+bool Bmp::set_pixel_unsafe(int x, int y, Pixel pixel) {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
         return false;
     m_pixels[y * m_width + x] = pixel;
     return true;
 }
 
-const Pixel& Bmp::get_pixel(int x, int y) const {
+Pixel Bmp::get_pixel(int x, int y) const {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
         throw std::out_of_range("Pixel out of bounds");
 

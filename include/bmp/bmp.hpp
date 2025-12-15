@@ -1,28 +1,30 @@
 #pragma once
 
-#include "bmp_structs.hpp"
 #include <vector>
 #include <fstream>
 #include <stdexcept>
 #include <cstring>
 
+#include "bmp_structs.hpp"
+#include "raster/interface_pixeled.hpp"
+
 namespace iheay::bmp {
 
-    class Bmp {
+    class Bmp : public iheay::raster::IPixeled {
     
     public:
         static Bmp empty(int width, int height); // empty white image
-        static Bmp empty(int width, int height, const Pixel& pixel); // empty image of given color
+        static Bmp empty(int width, int height, Pixel pixel); // empty image of given color
         static Bmp load(const std::string& path);
 
         void save(const std::string& path) const;
 
-        int get_width() const;
-        int get_height() const;
+        int get_width() const override;
+        int get_height() const override;
         
-        void set_pixel(int x, int y, const Pixel& pixel);
-        bool set_pixel_unsafe(int x, int y, const Pixel& pixel); // true if set
-        const Pixel& get_pixel(int x, int y) const;
+        void set_pixel(int x, int y, Pixel pixel) override;
+        bool set_pixel_unsafe(int x, int y, Pixel pixel) override; // true if set
+        Pixel get_pixel(int x, int y) const override;
 
     private:
         Bmp();
