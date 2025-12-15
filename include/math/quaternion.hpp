@@ -29,7 +29,11 @@ namespace iheay::math {
         Quaternion inverse() const;
         Quaternion pow(int n) const;
 
-        static Vec3 rotate_point(const Vec3& p, const Vec3& u, double phi);
+        static Vec3 rotate_point(const Vec3& point, const Vec3& u, double phi);
+
+        static Vec3 rotate_x(const Vec3& point, double phi);
+        static Vec3 rotate_y(const Vec3& point, double phi);
+        static Vec3 rotate_z(const Vec3& point, double phi);
 
         std::string to_string() const;
 

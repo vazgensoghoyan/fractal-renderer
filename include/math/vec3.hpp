@@ -7,7 +7,7 @@ namespace iheay::math {
     class Vec3 {
 
     public:
-        Vec3(double x, double y, double z);
+        Vec3(double x, double y, double z) : m_x(x), m_y(y), m_z(z) { }
 
         double get_x() const { return m_x; }
         double get_y() const { return m_y; }

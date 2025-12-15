@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 
+#include "math/vec3.hpp"
 #include "math/complex.hpp"
 #include "math/quaternion.hpp"
 
@@ -85,3 +86,69 @@ TEST(QuaternionTest, ComplexCombination) {
 
     ExpectQuaternionNear(q1 * q2, 6, 1, 13, -13);
 }
+
+static void ExpectVec3Near(const Vec3& v, double x, double y, double z, double eps = EPS) {
+    EXPECT_NEAR(v.get_x(), x, eps);
+    EXPECT_NEAR(v.get_y(), y, eps);
+    EXPECT_NEAR(v.get_z(), z, eps);
+}
+
+TEST(QuaternionRotationTest, RotateAroundX) {
+    Vec3 point(0, 1, 0);
+    double angle = M_PI / 2; // 90 degrees
+    Vec3 rotated = Quaternion::rotate_x(point, angle);
+
+    ExpectVec3Near(rotated, 0, 0, 1); // Y -> Z
+}
+
+TEST(QuaternionRotationTest, RotateAroundY) {
+    Vec3 point(1, 0, 0);
+    double angle = M_PI / 2; // 90 degrees
+    Vec3 rotated = Quaternion::rotate_y(point, angle);
+
+    ExpectVec3Near(rotated, 0, 0, -1); // X -> -Z
+}
+
+TEST(QuaternionRotationTest, RotateAroundZ) {
+    Vec3 point(1, 0, 0);
+    double angle = M_PI / 2; // 90 degrees
+    Vec3 rotated = Quaternion::rotate_z(point, angle);
+
+    ExpectVec3Near(rotated, 0, 1, 0); // X -> Y
+}
+
+TEST(QuaternionRotationTest, RotateArbitraryAxis) {
+    Vec3 point(1, 0, 0);
+    Vec3 axis(0, 1, 0); // rotate around Y
+    double angle = M_PI; // 180 degrees
+    Vec3 rotated = Quaternion::rotate_point(point, axis, angle);
+
+    ExpectVec3Near(rotated, -1, 0, 0); // X -> -X
+}
+
+TEST(QuaternionRotationTest, RotateZeroVector) {
+    Vec3 point(0, 0, 0);
+    Vec3 axis(1, 0, 0);
+    double angle = M_PI / 3;
+    Vec3 rotated = Quaternion::rotate_point(point, axis, angle);
+
+    ExpectVec3Near(rotated, 0, 0, 0); // zero vector stays zero
+}
+
+TEST(QuaternionRotationTest, RotateIdentity) {
+    Vec3 point(1, 2, 3);
+    Vec3 rotated = Quaternion::rotate_point(point, {1, 0, 0}, 0); // 0 degrees
+    ExpectVec3Near(rotated, 1, 2, 3); // point unchanged
+}
+
+TEST(QuaternionRotationTest, RotateBackAndForth) {
+    Vec3 point(1, 1, 1);
+    Vec3 axis(1, 0, 0);
+    double angle = M_PI / 3;
+
+    Vec3 rotated = Quaternion::rotate_point(point, axis, angle);
+    Vec3 rotated_back = Quaternion::rotate_point(rotated, axis, -angle);
+
+    ExpectVec3Near(rotated_back, 1, 1, 1); // rotation back restores point
+}
+

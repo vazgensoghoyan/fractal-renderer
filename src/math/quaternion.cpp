@@ -103,9 +103,10 @@ Quaternion Quaternion::pow(int n) const { // simple recursive binary pow
 
 // static method to rotate
 
-Vec3 Quaternion::rotate_point(const Vec3& p, const Vec3& u, double phi) {
+Vec3 Quaternion::rotate_point(const Vec3& point, const Vec3& u, double phi) {
     phi /= 2;
-    Quaternion v = Quaternion( 0, p.get_x(), p.get_y(), p.get_z() );
+    
+    Quaternion v = Quaternion( 0, point.get_x(), point.get_y(), point.get_z() );
 
     Vec3 s = u.normalize() * sin(phi);
     Quaternion q = Quaternion( cos(phi), s.get_x(), s.get_y(), s.get_z() );
@@ -113,6 +114,18 @@ Vec3 Quaternion::rotate_point(const Vec3& p, const Vec3& u, double phi) {
     Quaternion answer = q * v * q.inverse();
 
     return Vec3( answer.get_b(), answer.get_c(), answer.get_d() );
+}
+
+Vec3 Quaternion::rotate_x(const Vec3& point, double phi) {
+    return rotate_point(point, {1, 0, 0}, phi);
+}
+
+Vec3 Quaternion::rotate_y(const Vec3& point, double phi) {
+    return rotate_point(point, {0, 1, 0}, phi);
+}
+
+Vec3 Quaternion::rotate_z(const Vec3& point, double phi) {
+    return rotate_point(point, {0, 0, 1}, phi);
 }
 
 // to string
