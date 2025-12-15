@@ -1,33 +1,34 @@
-#include "bmp_io.hpp"
+#include <iostream>
+
 #include "bmp.hpp"
+#include "bmp_colors.hpp"
 
-#include "stdio.h"
+using namespace iheay::bmp;
 
-void draw_line_dda(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t color) {
+void draw_line_dda(Bmp& bmp, int x0, int y0, int x1, int y1, Pixel color) {
     int dx = x1 - x0;
     int dy = y1 - y0;
 
-    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-
+    int steps = std::max(abs(dx), abs(dy));
     if (steps == 0) {
-        set_pixel(bmp, y0, x0, color);
+        bmp.set_pixel(x0, y0, color);
         return;
     }
 
-    float x_inc = dx / (float)steps;
-    float y_inc = dy / (float)steps;
+    float x_inc = dx / float(steps);
+    float y_inc = dy / float(steps);
 
     float x = x0;
     float y = y0;
 
-    for (int i = 0; i <= steps; i++) {
-        set_pixel(bmp, (int)(y + 0.5f), (int)(x + 0.5f), color);
+    for (int i = 0; i <= steps; ++i) {
+        bmp.set_pixel(int(x + 0.5f), int(y + 0.5f), color);
         x += x_inc;
         y += y_inc;
     }
 }
 
-void draw_line_bresenham(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t color) {
+void draw_line_bresenham(Bmp& bmp, int x0, int y0, int x1, int y1, Pixel color) {
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
 
@@ -36,86 +37,68 @@ void draw_line_bresenham(bmp_t *bmp, int x0, int y0, int x1, int y1, pixel_t col
 
     int err = dx - dy;
 
-    while (1) {
-        set_pixel(bmp, y0, x0, color);
+    while (true) {
+        bmp.set_pixel(x0, y0, color);
 
-        if (x0 == x1 && y0 == y1)
-            break;
+        if (x0 == x1 && y0 == y1) break;
 
         int e2 = 2 * err;
-
-        if (e2 > -dy) {
-            err -= dy;
-            x0 += sx;
-        }
-
-        if (e2 < dx) {
-            err += dx;
-            y0 += sy;
-        }
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx)  { err += dx; y0 += sy; }
     }
 }
 
-void fill_background(bmp_t *bmp, pixel_t color) {
-    for (int x = 0; x < bmp->infoheader->image_width; x++) {
-        for (int y = 0; y < bmp->infoheader->image_height; y++) {
-            set_pixel(bmp, x, y, color);
-        }
-    }
+void fill_background(Bmp& bmp, Pixel color) {
+    for (int y = 0; y < bmp.get_height(); ++y)
+        for (int x = 0; x < bmp.get_width(); ++x)
+            bmp.set_pixel(x, y, color);
 }
 
-void draw_image(bmp_t *bmp) {
-    int width = bmp->infoheader->image_width;
-    int height = bmp->infoheader->image_height;
-
-    pixel_t red   = { 0, 0, 255 };
-    pixel_t green = { 0, 255, 0 };
-    pixel_t blue  = { 255, 0, 0 };
-    pixel_t white = { 255, 255, 255 };
+void draw_image(Bmp& bmp) {
+    int width  = bmp.get_width();
+    int height = bmp.get_height();
 
     // заливка фона
-    fill_background(bmp, red);
+    fill_background(bmp, colors::WHITE);
 
-    // 2. диагонали через центр (DDA)
-    draw_line_dda(bmp, 0, 0, width - 1, height - 1, red);
-    draw_line_dda(bmp, 0, height - 1, width - 1, 0, red);
+    // диагонали через центр (DDA)
+    draw_line_dda(bmp, 0, 0, width - 1, height - 1, colors::RED);
+    draw_line_dda(bmp, 0, height - 1, width - 1, 0, colors::RED);
 
-    // 3. горизонтальная и вертикальная линии через центр (Bresenham)
+    // горизонтальная и вертикальная линии через центр (Bresenham)
     int cx = width / 2;
     int cy = height / 2;
-    draw_line_bresenham(bmp, 0, cy, width - 1, cy, green);  // горизонталь
-    draw_line_bresenham(bmp, cx, 0, cx, height - 1, green); // вертикаль
+    draw_line_bresenham(bmp, 0, cy, width - 1, cy, colors::GREEN);  // горизонталь
+    draw_line_bresenham(bmp, cx, 0, cx, height - 1, colors::GREEN); // вертикаль
 
-    // 4. сетка каждые 50 пикселей (DDA)
-    for (int i = 50; i < width; i += 50) {
-        draw_line_dda(bmp, i, 0, i, height - 1, blue); // вертикали
-    }
-    for (int j = 50; j < height; j += 50) {
-        draw_line_dda(bmp, 0, j, width - 1, j, blue); // горизонты
-    }
+    // сетка каждые 50 пикселей (DDA)
+    for (int i = 50; i < width; i += 50)
+        draw_line_dda(bmp, i, 0, i, height - 1, colors::BLUE);
+
+    for (int j = 50; j < height; j += 50)
+        draw_line_dda(bmp, 0, j, width - 1, j, colors::BLUE);
 }
 
+void render(const std::string& output_file) {
+    Bmp bmp = Bmp::empty(500, 700, colors::WHITE);
 
-void render(const char* output_file) {
-    int width = 500;
-    int height = 700;
+    draw_image(bmp);
 
-    bmp_t bmp;
-    init_empty_bmp(&bmp, width, height);
-    
-    draw_image(&bmp);
-
-    bmp_save(&bmp, output_file);
-
-    free_bmp(&bmp);
+    bmp.save(output_file);
 }
 
 int main(int argc, char** argv) {
-    if (argc != 2) { fprintf(stderr, "What are you doing man\n"); return 1; }
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " output_file.bmp\n";
+        return 1;
+    }
 
-    char* output_file = argv[1];
-
-    render(output_file);
+    try {
+        render(argv[1]);
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

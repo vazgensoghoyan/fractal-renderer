@@ -1,5 +1,7 @@
 #include "bmp.hpp"
 
+using namespace iheay::bmp;
+
 // private static util
 
 uint32_t Bmp::row_size_bytes(int width) {

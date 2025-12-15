@@ -14,6 +14,10 @@ double normalize_arg(double arg) { // to [0, 2pi)
     return res;
 }
 
+// empty public constructor
+
+Complex::Complex() : real_(0), imag_(0) { }
+
 // private constructor
 
 Complex::Complex(double real, double imag) : real_(real), imag_(imag) { }
@@ -21,7 +25,7 @@ Complex::Complex(double real, double imag) : real_(real), imag_(imag) { }
 // little public fabric
 
 Complex Complex::Zero() {
-    return Complex(0, 0);
+    return Complex();
 }
 
 Complex Complex::Algebraic(double real, double imag) {

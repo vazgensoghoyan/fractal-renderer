@@ -11,6 +11,8 @@ namespace iheay::math {
     class Complex {
 
     public:
+        Complex();
+        
         static Complex Zero();
         static Complex Algebraic(double real, double imag);
         static Complex Trigonometric(double modulus, double arg);
