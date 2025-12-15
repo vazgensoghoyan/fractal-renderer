@@ -1,5 +1,4 @@
-#ifndef COMPLEX_HPP
-#define COMPLEX_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -44,5 +43,3 @@ namespace iheay::math {
     };
     
 }
-
-#endif // COMPLEX_HPP

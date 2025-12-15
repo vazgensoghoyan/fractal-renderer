@@ -1,5 +1,4 @@
-#ifndef QUATERNION_HPP
-#define QUATERNION_HPP
+#pragma once
 
 #include "complex.hpp"
 
@@ -34,5 +33,3 @@ namespace iheay::math {
     };
 
 }
-
-#endif // QUATERNION_HPP

@@ -1,5 +1,4 @@
-#ifndef VEC3_HPP
-#define VEC3_HPP
+#pragma once
 
 #include <cmath>
 
@@ -46,5 +45,3 @@ namespace iheay::math {
     };
 
 }
-
-#endif // VEC3_HPP

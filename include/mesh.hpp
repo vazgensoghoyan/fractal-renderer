@@ -1,5 +1,4 @@
-#ifndef MESH_HPP
-#define MESH_HPP
+#pragma once
 
 #include "vec3.hpp"
 
@@ -24,5 +23,3 @@ namespace iheay::objmodel {
     };
 
 }
-
-#endif // MESH_HPP
