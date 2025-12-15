@@ -1,30 +1,28 @@
 cmake_minimum_required(VERSION 3.20)
-
-# Имя проекта и версия
 project(IheayProject VERSION 1.0 LANGUAGES CXX)
-
-# Устанавливаем стандарт C++
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Включаем папку include/ для заголовочных файлов
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# Собираем все cpp файлы из src/
-file(GLOB_RECURSE SOURCES
+file(GLOB_RECURSE LIB_SOURCES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
-# Создаем исполняемый файл
-add_executable(iheay_app ${SOURCES})
+list(FILTER LIB_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
 
-# Опции компилятора (необязательно, но полезно)
+add_library(iheay_lib ${LIB_SOURCES})
+
 if(MSVC)
-    target_compile_options(iheay_app PRIVATE /W4 /permissive-)
+    target_compile_options(iheay_lib PRIVATE /W4 /permissive-)
 else()
-    target_compile_options(iheay_app PRIVATE -Wall -Wextra -Wpedantic -O2)
+    target_compile_options(iheay_lib PRIVATE -Wall -Wextra -Wpedantic -O2)
 endif()
 
-# Установка (опционально)
-install(TARGETS iheay_app DESTINATION bin)
+add_executable(iheay_app src/main.cpp)
+target_link_libraries(iheay_app iheay_lib)
+
+enable_testing()
+add_subdirectory(tests/googletest)
+add_subdirectory(tests)
