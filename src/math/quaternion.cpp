@@ -16,6 +16,30 @@ Quaternion::Quaternion(Complex z0, Complex z1)
 
 // property
 
+double Quaternion::get_a() const {
+    return m_z0.get_real();
+}
+
+double Quaternion::get_b() const {
+    return m_z0.get_imag();
+}
+
+double Quaternion::get_c() const {
+    return m_z1.get_real();
+}
+
+double Quaternion::get_d() const {
+    return m_z1.get_imag();
+}
+
+Complex Quaternion::get_z0() const {
+    return m_z0;
+}
+
+Complex Quaternion::get_z1() const {
+    return m_z1;
+}
+
 double Quaternion::get_modulus() const {
     return std::hypot(m_z0.get_modulus(), m_z1.get_modulus());
 }
@@ -45,7 +69,7 @@ Quaternion Quaternion::operator-(const Quaternion& other) const {
 
 Quaternion Quaternion::operator*(const Quaternion& other) const {
     Complex new_z0 = m_z0 * other.m_z0 - m_z1 * (~other.m_z1);
-    Complex new_z1 = m_z0 * other.m_z1 - m_z1 * (~other.m_z0);
+    Complex new_z1 = m_z0 * other.m_z1 + m_z1 * (~other.m_z0);
 
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }

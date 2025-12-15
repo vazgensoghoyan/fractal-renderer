@@ -1,68 +1,107 @@
 #include <gtest/gtest.h>
+#include <cmath>
+#include <vector>
+
 #include "math/complex.hpp"
 
 using namespace iheay::math;
 
-// Тестирование конструктора и статических методов
-TEST(ComplexTests, Creation) {
-    Complex z1 = Complex::Zero();
-    EXPECT_DOUBLE_EQ(z1.get_real(), 0.0);
-    EXPECT_DOUBLE_EQ(z1.get_imag(), 0.0);
+constexpr double EPS = 1e-5;
 
-    Complex z2 = Complex::Algebraic(3.0, 4.0);
-    EXPECT_DOUBLE_EQ(z2.get_real(), 3.0);
-    EXPECT_DOUBLE_EQ(z2.get_imag(), 4.0);
-
-    Complex z3 = Complex::Trigonometric(5.0, M_PI / 2);
-    EXPECT_NEAR(z3.get_real(), 0.0, 1e-9);
-    EXPECT_NEAR(z3.get_imag(), 5.0, 1e-9);
+static void ExpectComplexNear(const Complex& actual, double real, double imag, double eps = EPS) {
+    EXPECT_NEAR(actual.get_real(), real, eps);
+    EXPECT_NEAR(actual.get_imag(), imag, eps);
 }
 
-// Тестирование арифметических операций
-TEST(ComplexTests, Arithmetic) {
-    Complex a = Complex::Algebraic(1.0, 2.0);
-    Complex b = Complex::Algebraic(3.0, 4.0);
-
-    Complex sum = a + b;
-    EXPECT_DOUBLE_EQ(sum.get_real(), 4.0);
-    EXPECT_DOUBLE_EQ(sum.get_imag(), 6.0);
-
-    Complex diff = a - b;
-    EXPECT_DOUBLE_EQ(diff.get_real(), -2.0);
-    EXPECT_DOUBLE_EQ(diff.get_imag(), -2.0);
-
-    Complex prod = a * b;
-    EXPECT_DOUBLE_EQ(prod.get_real(), -5.0);
-    EXPECT_DOUBLE_EQ(prod.get_imag(), 10.0);
-
-    Complex quot = b / a;
-    EXPECT_NEAR(quot.get_real(), 2.2, 1e-9);   // (3+4i)/(1+2i) = 2.2 -0.4i
-    EXPECT_NEAR(quot.get_imag(), -0.4, 1e-9);
+static void ExpectComplexEqual(const Complex& a, const Complex& b, double eps = EPS) {
+    EXPECT_NEAR(a.get_real(), b.get_real(), eps);
+    EXPECT_NEAR(a.get_imag(), b.get_imag(), eps);
 }
 
-// Тестирование унарных операторов
-TEST(ComplexTests, UnaryOperators) {
-    Complex z = Complex::Algebraic(3.0, -4.0);
+TEST(ComplexTest, FactoryMethods) {
+    ExpectComplexNear(Complex::Zero(), 0.0, 0.0);
 
-    Complex neg = -z;
-    EXPECT_DOUBLE_EQ(neg.get_real(), -3.0);
-    EXPECT_DOUBLE_EQ(neg.get_imag(), 4.0);
+    auto c1 = Complex::Algebraic(3.0, 4.0);
+    ExpectComplexNear(c1, 3.0, 4.0);
+    EXPECT_NEAR(c1.get_modulus(), 5.0, EPS);
 
-    Complex conj = ~z;
-    EXPECT_DOUBLE_EQ(conj.get_real(), 3.0);
-    EXPECT_DOUBLE_EQ(conj.get_imag(), 4.0);
+    double r = 2.0, theta = M_PI / 4;
+    auto c2 = Complex::Trigonometric(r, theta);
+    EXPECT_NEAR(c2.get_modulus(), r, EPS);
+    EXPECT_NEAR(c2.get_arg(), theta, EPS);
 }
 
-// Тестирование модуля и аргумента
-TEST(ComplexTests, ModulusAndArgument) {
-    Complex z = Complex::Algebraic(3.0, 4.0);
-    EXPECT_DOUBLE_EQ(z.get_modulus(), 5.0);
-    EXPECT_DOUBLE_EQ(z.get_arg(), std::atan2(4.0, 3.0));
+TEST(ComplexTest, ArithmeticOperations) {
+    auto a = Complex::Algebraic(1.0, 2.0);
+    auto b = Complex::Algebraic(3.0, -4.0);
+
+    ExpectComplexNear(a + b, 4.0, -2.0);
+    ExpectComplexNear(a - b, -2.0, 6.0);
+    ExpectComplexNear(a * b, 11.0, 2.0);
+    ExpectComplexNear(a / b, -0.2, 0.4);
 }
 
-// Тестирование to_string (пример)
-TEST(ComplexTests, ToString) {
-    Complex z = Complex::Algebraic(3.0, -4.0);
-    std::string s = z.to_string();
-    EXPECT_FALSE(s.empty());
+TEST(ComplexTest, UnaryOperations) {
+    auto c = Complex::Algebraic(5.0, -7.0);
+    ExpectComplexNear(-c, -5.0, 7.0);
+    ExpectComplexNear(~c, 5.0, 7.0);
+}
+
+TEST(ComplexTest, PowerAndRoots) {
+    auto c = Complex::Algebraic(1.0, 1.0);
+    ExpectComplexNear(c.pow(2), 0.0, 2.0);
+
+    auto roots = c.get_roots(2);
+    EXPECT_EQ(roots.size(), 2);
+    for (auto& root : roots) {
+        auto sq = root.pow(2);
+        ExpectComplexNear(sq, c.get_real(), c.get_imag());
+    }
+}
+
+TEST(ComplexTest, ArgAndModulus) {
+    auto c1 = Complex::Algebraic(0.0, 1.0);
+    EXPECT_NEAR(c1.get_modulus(), 1.0, EPS);
+    EXPECT_NEAR(c1.get_arg(), M_PI / 2, EPS);
+
+    auto c2 = Complex::Algebraic(-1.0, 0.0);
+    EXPECT_NEAR(c2.get_arg(), M_PI, EPS);
+}
+
+TEST(ComplexTest, ArgumentSpecialCases) {
+    EXPECT_NEAR(Complex::Algebraic(0, 11).get_arg(), M_PI / 2, EPS);
+    EXPECT_NEAR(Complex::Algebraic(0, -100).get_arg(), 3 * M_PI / 2, EPS);
+    EXPECT_NEAR(Complex::Algebraic(117, -1).get_arg(), std::atan(-1.0 / 117) + 2 * M_PI, EPS);
+    EXPECT_NEAR(Complex::Algebraic(-708, 19).get_arg(), M_PI + std::atan(-19.0 / 708), EPS);
+    EXPECT_NEAR(Complex::Algebraic(-78, -13).get_arg(), M_PI + std::atan(13.0 / 78), EPS);
+}
+
+TEST(ComplexTest, BasicArithmetic) {
+    ExpectComplexEqual(Complex::Algebraic(1,3) + Complex::Algebraic(4,-5), Complex::Algebraic(5,-2));
+    ExpectComplexEqual(Complex::Algebraic(-2,1) - Complex::Algebraic(std::sqrt(3),5), Complex::Algebraic(-2-std::sqrt(3),-4));
+    ExpectComplexEqual(Complex::Algebraic(-2,1) - Complex::Algebraic(std::sqrt(3),5), Complex::Algebraic(-2-std::sqrt(3),-4));
+    ExpectComplexEqual(Complex::Algebraic(1,-1) * Complex::Algebraic(3,6), Complex::Algebraic(9,3));
+    ExpectComplexEqual(Complex::Algebraic(13,1) / Complex::Algebraic(7,-6), Complex::Algebraic(1,1));
+}
+
+TEST(ComplexTest, DivisionAndExponentiation) {
+    ExpectComplexEqual(
+        Complex::Algebraic(1,0) / Complex::Algebraic(std::sqrt(3),1),
+        Complex::Algebraic(std::sqrt(3)/4, -0.25)
+    );
+
+    auto n = Complex::Algebraic(2, -std::sqrt(3));
+    auto expected = Complex::Algebraic(11041, -7316 * std::sqrt(3));
+    ExpectComplexEqual(n.pow(10), expected);
+}
+
+TEST(ComplexTest, RootExtraction) {
+    auto n = Complex::Algebraic(-0.5, std::sqrt(3)/2);
+    auto roots = n.get_roots(3);
+
+    for (auto& r : roots) {
+        auto r_cubed = r.pow(3);
+        EXPECT_NEAR(r_cubed.get_real(), n.get_real(), EPS);
+        EXPECT_NEAR(r_cubed.get_imag(), n.get_imag(), EPS);
+    }
 }

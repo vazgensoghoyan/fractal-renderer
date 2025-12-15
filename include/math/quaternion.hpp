@@ -10,6 +10,12 @@ namespace iheay::math {
         Quaternion(double a, double b, double c, double d);
         Quaternion(Complex z0, Complex z1);
 
+        double get_a() const;
+        double get_b() const;
+        double get_c() const;
+        double get_d() const;
+        Complex get_z0() const;
+        Complex get_z1() const;
         double get_modulus() const;
 
         Quaternion operator+(const Quaternion& other) const;
