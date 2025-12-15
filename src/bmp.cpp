@@ -1,102 +1,80 @@
 #include "bmp.hpp"
+#include <fstream>
+#include <algorithm>
 
-#include <stdlib.h>
-#include <string.h>
-
-static size_t row_byte_width(uint16_t bpp, int32_t w) {
-    return (((size_t)bpp * (size_t)w + 31u) / 32u) * 4u;
+int Bmp::padding() const {
+    int rowBytes = sizeof(Pixel) * v5Header.width;
+    return (ALIGNMENT - rowBytes % ALIGNMENT) % ALIGNMENT;
 }
 
-int init_empty_bmp(bmp_t *bmp, int width, int height) {
-    if (!bmp || width <= 0 || height <= 0)
-        return 1;
+const Pixel& Bmp::at(int x, int y) const {
+    return pixels[y * v5Header.width + x];
+}
 
-    bmp->fileheader = new bmp_fileheader_t;
-    bmp->infoheader = new bmp_infoheader_t;
-    if (!bmp->fileheader || !bmp->infoheader)
-        return 1;
+void Bmp::load(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+        throw std::ios_base::failure("Failed to open BMP file: " + path);
 
-    bmp_fileheader_t *fh = bmp->fileheader;
-    bmp_infoheader_t *ih = bmp->infoheader;
+    file.read(reinterpret_cast<char*>(&fileHeader), sizeof(fileHeader));
+    if (!file)
+        throw std::runtime_error("Failed to read BMP file header");
 
-    const int bpp = 24;
-    size_t row_bytes = ((width * 3 + 3) / 4) * 4;
-    size_t image_size = row_bytes * height;
+    file.read(reinterpret_cast<char*>(&v5Header), sizeof(v5Header));
+    if (!file)
+        throw std::runtime_error("Failed to read BMP V5 header");
 
-    fh->signature = 0x4D42;
-    fh->reserved1 = fh->reserved2 = 0;
-    fh->file_offset_to_pixels = sizeof(bmp_fileheader_t) + sizeof(bmp_infoheader_t);
-    fh->file_size = fh->file_offset_to_pixels + image_size;
+    file.seekg(fileHeader.pixel_offset);
+    if (!file)
+        throw std::runtime_error("Invalid BMP pixel offset");
 
-    ih->header_size = 40;
-    ih->image_width = width;
-    ih->image_height = height;
-    ih->planes = 1;
-    ih->bits_per_pixel = bpp;
-    ih->compression = 0;
-    ih->image_size = image_size;
-    ih->x_pixels_per_meter = 2835;
-    ih->y_pixels_per_meter = 2835;
-    ih->colors_used = 0;
-    ih->important_colors = 0;
+    if (v5Header.width <= 0 || v5Header.height <= 0)
+        throw std::runtime_error("Invalid BMP dimensions");
 
-    pixel_t *buf = (pixel_t*)calloc((size_t)width * height, sizeof(pixel_t));
-    pixel_t **rows = (pixel_t**)calloc(height, sizeof(pixel_t *));
-    if (!buf || !rows) {
-        free(buf); free(rows);
-        return 1;
+    pixels.resize(static_cast<size_t>(v5Header.width) * v5Header.height);
+
+    int pad = padding();
+
+    for (int y = 0; y < v5Header.height; ++y) {
+        file.read(reinterpret_cast<char*>(&pixels[y * v5Header.width]),
+                  sizeof(Pixel) * v5Header.width);
+        if (!file)
+            throw std::runtime_error("Failed to read BMP pixel data");
+
+        file.ignore(pad);
+        if (!file)
+            throw std::runtime_error("Failed to skip BMP padding");
     }
-
-    for (int y = 0; y < height; y++)
-        rows[y] = buf + y * width;
-
-    bmp->rows = rows;
-    return 0;
 }
 
-int set_pixel(bmp_t *bmp, int x, int y, pixel_t p) {
-    if (!bmp || !bmp->infoheader || !bmp->rows) return 1;
+void Bmp::save(const std::string& path) const {
+    std::ofstream file(path, std::ios::binary);
+    if (!file)
+        throw std::ios_base::failure("Failed to create BMP file: " + path);
 
-    int w = bmp->infoheader->image_width;
-    int h = bmp->infoheader->image_height;
+    file.write(reinterpret_cast<const char*>(&fileHeader), sizeof(fileHeader));
+    if (!file)
+        throw std::runtime_error("Failed to write BMP file header");
 
-    if (h < 0) h = -h;
+    file.write(reinterpret_cast<const char*>(&v5Header), sizeof(v5Header));
+    if (!file)
+        throw std::runtime_error("Failed to write BMP V5 header");
 
-    if (x < 0 || y < 0 || x >= w || y >= h) return 1;
+    file.seekp(fileHeader.pixel_offset);
+    if (!file)
+        throw std::runtime_error("Invalid BMP pixel offset");
 
-    bmp->rows[y][x] = p;
-    return 0;
-}
+    int pad = padding();
+    uint32_t zero = 0;
 
-int set_pixel_rgb(bmp_t *bmp, int x, int y, uint8_t r, uint8_t g, uint8_t b) {
-    pixel_t px = { b, g, r };
-    return set_pixel(bmp, x, y, px);
-}
+    for (int y = 0; y < v5Header.height; ++y) {
+        file.write(reinterpret_cast<const char*>(&pixels[y * v5Header.width]),
+                   sizeof(Pixel) * v5Header.width);
+        if (!file)
+            throw std::runtime_error("Failed to write BMP pixel's row");
 
-int get_pixel(bmp_t *bmp, int x, int y, pixel_t *out) {
-    if (!bmp || !bmp->infoheader || !bmp->rows || !out) return 1;
-
-    int w = bmp->infoheader->image_width;
-    int h = bmp->infoheader->image_height;
-
-    if (h < 0) h = -h;
-    if (x < 0 || y < 0 || x >= w || y >= h) return 1;
-
-    *out = bmp->rows[y][x];
-    return 0;
-}
-
-void free_bmp(bmp_t *bmp) {
-    if (!bmp) return;
-
-    if (bmp->rows) {
-        if (bmp->rows[0]) free(bmp->rows[0]);
-        free(bmp->rows);
+        file.write(reinterpret_cast<const char*>(&zero), pad);
+        if (!file)
+            throw std::runtime_error("Failed to write BMP padding");
     }
-    free(bmp->fileheader);
-    free(bmp->infoheader);
-
-    bmp->fileheader = NULL;
-    bmp->infoheader = NULL;
-    bmp->rows = NULL;
 }

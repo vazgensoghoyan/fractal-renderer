@@ -1,50 +1,28 @@
-#ifndef BMP_H
-#define BMP_H
+#pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include "bmp_structs.hpp"
 
-#pragma pack(push, 1)
-typedef struct {
-    uint8_t B;
-    uint8_t G;
-    uint8_t R;
-} pixel_t;
+#include <cstdint>
+#include <vector>
+#include <string>
 
-typedef struct {
-    uint16_t signature;       // 'BM' = 0x4D42
-    uint32_t file_size;
-    uint16_t reserved1;
-    uint16_t reserved2;
-    uint32_t file_offset_to_pixels;
-} bmp_fileheader_t; // 14 bytes
 
-typedef struct {
-    uint32_t header_size;     // must be 40 for BITMAPINFOHEADER
-    int32_t  image_width;
-    int32_t  image_height;    // positive => bottom-up; negative => top-down
-    uint16_t planes;
-    uint16_t bits_per_pixel;  // expect 24
-    uint32_t compression;     // expect 0 (BI_RGB)
-    uint32_t image_size;      // may be 0 for BI_RGB
-    int32_t  x_pixels_per_meter;
-    int32_t  y_pixels_per_meter;
-    uint32_t colors_used;
-    uint32_t important_colors;
-} bmp_infoheader_t; // 40 bytes
-#pragma pack(pop)
+class Bmp {
+public:
+    void load(const std::string& path);
+    void save(const std::string& path) const;
 
-typedef struct {
-    bmp_fileheader_t *fileheader;
-    bmp_infoheader_t *infoheader;
-    pixel_t **rows;    // rows[0] == top row pointer, contiguous pixel buffer at rows[0]
-} bmp_t;
+    const Pixel& at(int x, int y) const;
 
-int init_empty_bmp(bmp_t *bmp, int width, int height); /* allocate zeroed image */
-int set_pixel(bmp_t *bmp, int x, int y, pixel_t color);
-int set_pixel_rgb(bmp_t *bmp, int x, int y, uint8_t r, uint8_t g, uint8_t b);
-int get_pixel(bmp_t *bmp, int x, int y, pixel_t *out_color);
-void free_bmp(bmp_t *bmp);
+    void set_pixel();
 
-#endif // BMP_H
+private:
+    static constexpr int ALIGNMENT = 4;
+
+    BmpFileHeader fileHeader{};
+    BmpV5Header v5Header{};
+
+    std::vector<Pixel> pixels;
+
+    int padding() const;
+};
