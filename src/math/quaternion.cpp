@@ -1,4 +1,4 @@
-#include "quaternion.hpp"
+#include "math/quaternion.hpp"
 
 using namespace iheay::math;
 

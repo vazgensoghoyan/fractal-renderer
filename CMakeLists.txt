@@ -1,22 +1,30 @@
-cmake_minimum_required(VERSION 3.10)
-project(MyProject VERSION 1.0.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_CXX_STANDARD 20)
+# Имя проекта и версия
+project(IheayProject VERSION 1.0 LANGUAGES CXX)
+
+# Устанавливаем стандарт C++
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+# Включаем папку include/ для заголовочных файлов
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
-include_directories(${CMAKE_SOURCE_DIR}/include)
-
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c" "src/*.cc")
-file(GLOB_RECURSE HEADERS "include/*.h" "include/*.hpp")
-
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-
-target_compile_options(${PROJECT_NAME} PRIVATE
-    -Wall
-    -Wextra
-    -Wpedantic
+# Собираем все cpp файлы из src/
+file(GLOB_RECURSE SOURCES
+    "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
+
+# Создаем исполняемый файл
+add_executable(iheay_app ${SOURCES})
+
+# Опции компилятора (необязательно, но полезно)
+if(MSVC)
+    target_compile_options(iheay_app PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(iheay_app PRIVATE -Wall -Wextra -Wpedantic -O2)
+endif()
+
+# Установка (опционально)
+install(TARGETS iheay_app DESTINATION bin)

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "bmp.hpp"
-#include "bmp_colors.hpp"
+#include "bmp/bmp.hpp"
+#include "bmp/bmp_colors.hpp"
 
 using namespace iheay::bmp;
 

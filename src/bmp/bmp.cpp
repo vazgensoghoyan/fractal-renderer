@@ -1,4 +1,4 @@
-#include "bmp.hpp"
+#include "bmp/bmp.hpp"
 
 using namespace iheay::bmp;
 
