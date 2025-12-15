@@ -1,98 +1,156 @@
 #include "bmp.hpp"
-#include <fstream>
-#include <algorithm>
 
-// static private util
+// private static util
 
-int Bmp::padding(int width) {
-    int rowBytes = sizeof(Pixel) * width;
-    return (c_ALIGNMENT - rowBytes % c_ALIGNMENT) % c_ALIGNMENT;
+uint32_t Bmp::row_size_bytes(int width) {
+    return ((width * 24 + 31) / 32) * 4;
 }
 
-// private constructor
+// default private constructor
 
-Bmp::Bmp(const BmpFileHeader& file_h, const BmpV5Header& v5_h, const std::vector<Pixel>& p)
-    : m_file_header(file_h)
-    , m_v5_header(v5_h)
-    , m_pixels(p)
+Bmp::Bmp() = default;
+
+Bmp::Bmp(int width, int height, const std::vector<Pixel> pixels)
+    : m_width(width)
+    , m_height(height)
+    , m_pixels(pixels)
 { }
 
-// public little fabric
+// little public fabric
 
+Bmp Bmp::empty(int width, int height) {
+    Pixel white_color(255, 255, 255);
+    return empty(width, height, white_color);
+}
 
+Bmp Bmp::empty(int width, int height, const Pixel& pixel) {
+    std::vector<Pixel> pixels(width * height, pixel);
+    return Bmp(width, height, pixels);
+}
 
 Bmp Bmp::load(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
     if (!file)
-        throw std::ios_base::failure("Failed to open BMP file: " + path);
+        throw std::runtime_error("Cannot open file");
 
-    BmpFileHeader file_header;
-    BmpV5Header v5_header;
-    std::vector<Pixel> pixels;
+    BmpFileHeader fh{};
+    BmpInfoHeader ih{};
 
-    file.read(reinterpret_cast<char*>(&file_header), sizeof(m_file_header));
-    if (!file)
-        throw std::runtime_error("Failed to read BMP file header");
+    file.read(reinterpret_cast<char*>(&fh), sizeof(fh));
+    file.read(reinterpret_cast<char*>(&ih), sizeof(ih));
 
-    file.read(reinterpret_cast<char*>(&v5_header), sizeof(m_v5_header));
-    if (!file)
-        throw std::runtime_error("Failed to read BMP V5 header");
+    if (fh.signature[0] != 'B' || fh.signature[1] != 'M')
+        throw std::runtime_error("Not a BMP file");
 
-    file.seekg(file_header.pixel_offset);
-    if (!file)
-        throw std::runtime_error("Invalid BMP pixel offset");
+    if (ih.header_size != 40)
+        throw std::runtime_error("Only BITMAPINFOHEADER supported");
 
-    if (v5_header.width <= 0 || v5_header.height <= 0)
-        throw std::runtime_error("Invalid BMP dimensions");
+    if (ih.planes != 1 || ih.bits_per_pixel != 24)
+        throw std::runtime_error("Only 24bpp BMP supported");
 
-    pixels.resize(static_cast<size_t>(v5_header.width) * v5_header.height);
+    if (ih.compression != 0)
+        throw std::runtime_error("Compressed BMP not supported");
 
-    int pad = padding(v5_header.width);
+    const bool bottom_up = ih.height > 0;
+    const int width  = ih.width;
+    const int height = std::abs(ih.height);
 
-    for (int y = 0; y < v5_header.height; ++y) {
-        file.read(reinterpret_cast<char*>(&pixels[y * v5_header.width]),
-                  sizeof(Pixel) * v5_header.width);
-        if (!file)
-            throw std::runtime_error("Failed to read BMP pixel data");
+    Bmp bmp;
+    bmp.m_width  = width;
+    bmp.m_height = height;
+    bmp.m_pixels.resize(width * height);
 
-        file.ignore(pad);
-        if (!file)
-            throw std::runtime_error("Failed to skip BMP padding");
+    const uint32_t row_size = row_size_bytes(width);
+    std::vector<uint8_t> row(row_size);
+
+    file.seekg(fh.pixel_offset);
+
+    for (int row_index = 0; row_index < height; ++row_index) {
+        const int y = bottom_up ? (height - 1 - row_index) : row_index;
+
+        file.read(reinterpret_cast<char*>(row.data()), row_size);
+
+        std::memcpy(
+            &bmp.m_pixels[y * width],
+            row.data(),
+            width * sizeof(Pixel)
+        );
     }
 
-    return Bmp(file_header, v5_header, pixels);
+    return bmp;
 }
 
-// saving to file in path
+// width and height properties
+
+int Bmp::get_width() const {
+    return m_width;
+}
+
+int Bmp::get_height() const {
+    return m_height;
+}
+
+// pixel property
+    
+void Bmp::set_pixel(int x, int y, const Pixel& pixel) {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height)
+        throw std::out_of_range("Pixel out of bounds");
+
+    m_pixels[y * m_width + x] = pixel;
+}
+    
+bool Bmp::set_pixel_unsafe(int x, int y, const Pixel& pixel) {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height)
+        return false;
+    m_pixels[y * m_width + x] = pixel;
+    return true;
+}
+
+const Pixel& Bmp::get_pixel(int x, int y) const {
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height)
+        throw std::out_of_range("Pixel out of bounds");
+
+    return m_pixels[y * m_width + x];
+}
+
+// image saving
 
 void Bmp::save(const std::string& path) const {
     std::ofstream file(path, std::ios::binary);
     if (!file)
-        throw std::ios_base::failure("Failed to create BMP file: " + path);
+        throw std::runtime_error("Cannot create file");
 
-    file.write(reinterpret_cast<const char*>(&m_file_header), sizeof(m_file_header));
-    if (!file)
-        throw std::runtime_error("Failed to write BMP file header");
+    const uint32_t row_size = row_size_bytes(m_width);
+    const uint32_t image_size = row_size * m_height;
+    const uint32_t pixel_offset = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
 
-    file.write(reinterpret_cast<const char*>(&m_v5_header), sizeof(m_v5_header));
-    if (!file)
-        throw std::runtime_error("Failed to write BMP V5 header");
+    BmpFileHeader fh{
+        {'B','M'},
+        pixel_offset + image_size,
+        0, 0,
+        pixel_offset
+    };
 
-    file.seekp(m_file_header.pixel_offset);
-    if (!file)
-        throw std::runtime_error("Invalid BMP pixel offset");
+    BmpInfoHeader ih{};
+    ih.header_size     = 40;
+    ih.width           = m_width;
+    ih.height          = m_height; // bottom-up
+    ih.planes          = 1;
+    ih.bits_per_pixel  = 24;
+    ih.compression     = 0;
+    ih.image_size      = image_size;
 
-    int pad = padding(get_width());
-    uint32_t zero = 0;
+    file.write(reinterpret_cast<const char*>(&fh), sizeof(fh));
+    file.write(reinterpret_cast<const char*>(&ih), sizeof(ih));
 
-    for (int y = 0; y < m_v5_header.height; ++y) {
-        file.write(reinterpret_cast<const char*>(&m_pixels[y * m_v5_header.width]),
-                   sizeof(Pixel) * m_v5_header.width);
-        if (!file)
-            throw std::runtime_error("Failed to write BMP pixel's row");
+    std::vector<uint8_t> row(row_size, 0);
 
-        file.write(reinterpret_cast<const char*>(&zero), pad);
-        if (!file)
-            throw std::runtime_error("Failed to write BMP padding");
+    for (int y = m_height - 1; y >= 0; --y) {
+        std::memcpy(
+            row.data(),
+            &m_pixels[y * m_width],
+            m_width * sizeof(Pixel)
+        );
+        file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }
 }
