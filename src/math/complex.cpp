@@ -42,7 +42,7 @@ Complex Complex::Trigonometric(double modulus, double arg) {
     double real = modulus * cos(norm_arg);
     double imag = modulus * sin(norm_arg);
 
-    return Complex(real, imag);
+    return Algebraic(real, imag);
 }
 
 // properties
@@ -67,11 +67,11 @@ double Complex::get_arg() const {
 // unary operators
 
 Complex Complex::operator-() const {
-    return Complex(-m_real, -m_imag);
+    return Algebraic(-m_real, -m_imag);
 }
 
 Complex Complex::operator~() const { // conjugate
-    return Complex(m_real, -m_imag);
+    return Algebraic(m_real, -m_imag);
 }
 
 // binary operators
@@ -104,6 +104,12 @@ Complex Complex::operator/(const Complex& other) const {
     double new_imag = (m_imag * other.m_real - m_real * other.m_imag) / denom;
 
     return Algebraic(new_real, new_imag);
+}
+
+// oper with double
+
+Complex Complex::operator/(double scalar) const {
+    return Algebraic(m_real / scalar, m_imag / scalar);
 }
 
 // methods

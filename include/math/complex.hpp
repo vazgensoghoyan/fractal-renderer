@@ -29,6 +29,8 @@ namespace iheay::math {
 
         Complex operator-() const;
         Complex operator~() const; // conjugate 
+        
+        Complex operator/(double scalar) const;
 
         std::vector<Complex> get_roots(int n) const;
         Complex pow(int n) const;

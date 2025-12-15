@@ -1,6 +1,7 @@
 #pragma once
 
 #include "complex.hpp"
+#include "vec3.hpp"
 
 namespace iheay::math {
 
@@ -27,6 +28,8 @@ namespace iheay::math {
 
         Quaternion inverse() const;
         Quaternion pow(int n) const;
+
+        static Vec3 rotate_point(const Vec3& p, const Vec3& u, double phi);
 
         std::string to_string() const;
 

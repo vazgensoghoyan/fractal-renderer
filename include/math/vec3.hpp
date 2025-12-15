@@ -9,9 +9,11 @@ namespace iheay::math {
     public:
         Vec3(double x, double y, double z);
 
-        double get_length() const {
-            return sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
-        }
+        double get_x() const { return m_x; }
+        double get_y() const { return m_y; }
+        double get_z() const { return m_z; }
+
+        double get_length() const { return sqrt(m_x * m_x + m_y * m_y + m_z * m_z); }
 
         Vec3 operator-() const { 
             return Vec3(-m_x, -m_y, -m_z); 

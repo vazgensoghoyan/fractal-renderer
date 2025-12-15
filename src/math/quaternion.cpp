@@ -77,10 +77,11 @@ Quaternion Quaternion::operator*(const Quaternion& other) const {
 // methods
 
 Quaternion Quaternion::inverse() const {
-    // TODO
+    double modulus = get_modulus();
+    double squared = modulus * modulus;
 
-    Complex new_z0 = Complex::Zero();
-    Complex new_z1 = Complex::Zero();
+    Complex new_z0 = ~m_z0 / squared;
+    Complex new_z1 = -m_z1 / squared;
 
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }
@@ -98,6 +99,20 @@ Quaternion Quaternion::pow(int n) const { // simple recursive binary pow
     Quaternion half_pow = pow(n / 2);
 
     return half_pow * half_pow;
+}
+
+// static method to rotate
+
+Vec3 Quaternion::rotate_point(const Vec3& p, const Vec3& u, double phi) {
+    phi /= 2;
+    Quaternion v = Quaternion( 0, p.get_x(), p.get_y(), p.get_z() );
+
+    Vec3 s = u.normalize() * sin(phi);
+    Quaternion q = Quaternion( cos(phi), s.get_x(), s.get_y(), s.get_z() );
+
+    Quaternion answer = q * v * q.inverse();
+
+    return Vec3( answer.get_b(), answer.get_c(), answer.get_d() );
 }
 
 // to string
