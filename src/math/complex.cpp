@@ -16,11 +16,11 @@ double normalize_arg(double arg) { // to [0, 2pi)
 
 // empty public constructor
 
-Complex::Complex() : real_(0), imag_(0) { }
+Complex::Complex() : m_real(0), m_imag(0) { }
 
 // private constructor
 
-Complex::Complex(double real, double imag) : real_(real), imag_(imag) { }
+Complex::Complex(double real, double imag) : m_real(real), m_imag(imag) { }
 
 // little public fabric
 
@@ -48,37 +48,37 @@ Complex Complex::Trigonometric(double modulus, double arg) {
 // properties
 
 double Complex::get_real() const {
-    return real_;
+    return m_real;
 }
 
 double Complex::get_imag() const {
-    return imag_;
+    return m_imag;
 }
 
 double Complex::get_modulus() const {
-    return std::hypot(real_, imag_);
+    return std::hypot(m_real, m_imag);
 }
 
 double Complex::get_arg() const {
-    double arg = atan2(imag_, real_);
+    double arg = atan2(m_imag, m_real);
     return normalize_arg(arg);
 }
 
 // unary operators
 
 Complex Complex::operator-() const {
-    return Complex(-real_, -imag_);
+    return Complex(-m_real, -m_imag);
 }
 
 Complex Complex::operator~() const { // conjugate
-    return Complex(real_, -imag_);
+    return Complex(m_real, -m_imag);
 }
 
 // binary operators
 
 Complex Complex::operator+(const Complex& other) const {
-    double new_real = real_ + other.real_;
-    double new_imag = imag_ + other.imag_;
+    double new_real = m_real + other.m_real;
+    double new_imag = m_imag + other.m_imag;
 
     return Algebraic(new_real, new_imag);
 }
@@ -88,20 +88,20 @@ Complex Complex::operator-(const Complex& other) const {
 }
 
 Complex Complex::operator*(const Complex& other) const {
-    double new_real = real_ * other.real_ - imag_ * other.imag_;
-    double new_imag = real_ * other.imag_ + imag_ * other.real_;
+    double new_real = m_real * other.m_real - m_imag * other.m_imag;
+    double new_imag = m_real * other.m_imag + m_imag * other.m_real;
 
     return Algebraic(new_real, new_imag);
 }
 
 Complex Complex::operator/(const Complex& other) const {
-    double denom = other.real_ * other.real_ + other.imag_ * other.imag_;
+    double denom = other.m_real * other.m_real + other.m_imag * other.m_imag;
 
     if (denom == 0)
         throw std::runtime_error("Cant divide by complex zero");
 
-    double new_real = (real_ * other.real_ + imag_ * other.imag_) / denom;
-    double new_imag = (imag_ * other.real_ - real_ * other.imag_) / denom;
+    double new_real = (m_real * other.m_real + m_imag * other.m_imag) / denom;
+    double new_imag = (m_imag * other.m_real - m_real * other.m_imag) / denom;
 
     return Algebraic(new_real, new_imag);
 }
@@ -131,5 +131,5 @@ Complex Complex::pow(int n) const { // simple recursive binary pow
 // to string
 
 std::string Complex::to_string() const {
-    return std::format("{} + i * {}", real_, imag_);
+    return std::format("{} + i * {}", m_real, m_imag);
 }

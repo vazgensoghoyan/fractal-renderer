@@ -11,14 +11,14 @@ namespace iheay::objmodel {
 
     public:
         Mesh(const std::vector<iheay::math::Vec3>& v, 
-             const std::vector<std::vector<int>>& i) : vetrices_(v), indexes_(i) { }
+             const std::vector<std::vector<int>>& i) : m_vertices(v), m_indexes(i) { }
 
-        const std::vector<iheay::math::Vec3>& get_vertices() const { return vetrices_; }
-        const std::vector<std::vector<int>>& get_indexes() const { return indexes_; }
+        const std::vector<iheay::math::Vec3>& get_vertices() const { return m_vertices; }
+        const std::vector<std::vector<int>>& get_indexes() const { return m_indexes; }
 
     private:
-        std::vector<iheay::math::Vec3> vetrices_;
-        std::vector<std::vector<int>> indexes_;
+        std::vector<iheay::math::Vec3> m_vertices;
+        std::vector<std::vector<int>> m_indexes;
 
     };
 

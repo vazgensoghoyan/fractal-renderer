@@ -5,36 +5,36 @@ using namespace iheay::math;
 // constructors
 
 Quaternion::Quaternion(double a, double b, double c, double d)
-    : z0_(Complex::Algebraic(a, b))
-    , z1_(Complex::Algebraic(c, d))
+    : m_z0(Complex::Algebraic(a, b))
+    , m_z1(Complex::Algebraic(c, d))
 { }
 
 Quaternion::Quaternion(Complex z0, Complex z1)
-    : z0_(z0)
-    , z1_(z1)
+    : m_z0(z0)
+    , m_z1(z1)
 { }
 
 // property
 
 double Quaternion::get_modulus() const {
-    return std::hypot(z0_.get_modulus(), z1_.get_modulus());
+    return std::hypot(m_z0.get_modulus(), m_z1.get_modulus());
 }
 
 // unary operators
 
 Quaternion Quaternion::operator-() const {
-    return Quaternion(-z0_, -z1_);
+    return Quaternion(-m_z0, -m_z1);
 }
 
 Quaternion Quaternion::operator~() const { // conjugate
-    return Quaternion(~z0_, -z1_);
+    return Quaternion(~m_z0, -m_z1);
 }
 
 // binary operators
 
 Quaternion Quaternion::operator+(const Quaternion& other) const {
-    Complex new_z0 = z0_ + other.z0_;
-    Complex new_z1 = z1_ + other.z1_;
+    Complex new_z0 = m_z0 + other.m_z0;
+    Complex new_z1 = m_z1 + other.m_z1;
 
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }
@@ -44,8 +44,8 @@ Quaternion Quaternion::operator-(const Quaternion& other) const {
 }
 
 Quaternion Quaternion::operator*(const Quaternion& other) const {
-    Complex new_z0 = z0_ * other.z0_ - z1_ * (~other.z1_);
-    Complex new_z1 = z0_ * other.z1_ - z1_ * (~other.z0_);
+    Complex new_z0 = m_z0 * other.m_z0 - m_z1 * (~other.m_z1);
+    Complex new_z1 = m_z0 * other.m_z1 - m_z1 * (~other.m_z0);
 
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }
@@ -81,9 +81,9 @@ Quaternion Quaternion::pow(int n) const { // simple recursive binary pow
 std::string Quaternion::to_string() const {
     return std::format(
         "{} + i * {} + j * {} + k * {}",
-        z0_.get_real(),
-        z0_.get_imag(),
-        z1_.get_real(),
-        z1_.get_imag()
+        m_z0.get_real(),
+        m_z0.get_imag(),
+        m_z1.get_real(),
+        m_z1.get_imag()
     );
 }

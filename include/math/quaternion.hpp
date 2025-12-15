@@ -27,8 +27,8 @@ namespace iheay::math {
     private:
 
     private:
-        Complex z0_;
-        Complex z1_;
+        Complex m_z0;
+        Complex m_z1;
 
     };
 

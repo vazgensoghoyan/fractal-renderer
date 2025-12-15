@@ -39,8 +39,8 @@ namespace iheay::math {
         Complex(double real, double imag);
 
     private:
-        double real_;
-        double imag_;
+        double m_real;
+        double m_imag;
 
     };
     

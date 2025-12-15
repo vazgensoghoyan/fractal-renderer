@@ -10,15 +10,15 @@ namespace iheay::math {
         Vec3(double x, double y, double z);
 
         double get_length() const {
-            return sqrt(x_ * x_ + y_ * y_ + z_ * z_);
+            return sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
         }
 
         Vec3 operator-() const { 
-            return Vec3(-x_, -y_, -z_); 
+            return Vec3(-m_x, -m_y, -m_z); 
         }
 
         Vec3 operator+(const Vec3& o) const { 
-            return Vec3(x_ + o.x_, y_ + o.y_, z_ + o.z_); 
+            return Vec3(m_x + o.m_x, m_y + o.m_y, m_z + o.m_z); 
         }
 
         Vec3 operator-(const Vec3& o) const { 
@@ -26,11 +26,11 @@ namespace iheay::math {
         }
 
         Vec3 operator*(double scalar) const { 
-            return Vec3(x_ * scalar, y_ * scalar, z_ * scalar); 
+            return Vec3(m_x * scalar, m_y * scalar, m_z * scalar); 
         }
 
         Vec3 operator/(double scalar) const {
-            return Vec3(x_ / scalar, y_ / scalar, z_ / scalar);
+            return Vec3(m_x / scalar, m_y / scalar, m_z / scalar);
         }
 
         Vec3 normalize() const {
@@ -38,9 +38,9 @@ namespace iheay::math {
         }
 
     private:
-        double x_;
-        double y_;
-        double z_;
+        double m_x;
+        double m_y;
+        double m_z;
 
     };
 
