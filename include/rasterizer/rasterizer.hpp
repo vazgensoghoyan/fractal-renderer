@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // rasterizer.hpp
 
 #include <concepts>
 

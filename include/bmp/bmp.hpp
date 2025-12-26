@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // bmp.hpp
 
 #include <vector>
 #include <fstream>

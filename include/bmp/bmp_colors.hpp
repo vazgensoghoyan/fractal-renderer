@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // bmp_colors.hpp
 
 #include "bmp_structs.hpp"
 

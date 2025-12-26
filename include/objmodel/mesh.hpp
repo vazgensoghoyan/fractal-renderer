@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // mesh.hpp
 
 #include "vec3.hpp"
 

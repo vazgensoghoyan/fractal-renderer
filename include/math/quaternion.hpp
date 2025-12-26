@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // quaternion.hpp
 
 #include "complex.hpp"
 #include "vec3.hpp"

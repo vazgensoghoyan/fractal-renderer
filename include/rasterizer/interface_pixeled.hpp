@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // interface_pixeled.hpp
 
 #include "bmp/bmp_structs.hpp"
 

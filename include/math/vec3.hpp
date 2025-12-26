@@ -1,4 +1,4 @@
-#pragma once
+#pragma once // vec3.hpp
 
 #include <cmath>
 
