@@ -17,10 +17,10 @@ namespace iheay::math {
         static Complex Algebraic(double real, double imag);
         static Complex Trigonometric(double modulus, double arg);
 
-        double get_real() const;
-        double get_imag() const;
-        double get_modulus() const;
-        double get_arg() const; // in [0, 2pi)
+        [[nodiscard]] double get_real() const;
+        [[nodiscard]] double get_imag() const;
+        [[nodiscard]] double get_modulus() const;
+        [[nodiscard]] double get_arg() const; // in [0, 2pi)
 
         Complex operator+(const Complex& other) const;
         Complex operator-(const Complex& other) const;

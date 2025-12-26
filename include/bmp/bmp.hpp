@@ -19,12 +19,13 @@ namespace iheay::bmp {
 
         void save(const std::string& path) const;
 
-        int get_width() const override;
-        int get_height() const override;
+        [[nodiscard]] int get_width() const override;
+        [[nodiscard]] int get_height() const override;
+
+        [[nodiscard]] Pixel get_pixel(int x, int y) const override;
         
         void set_pixel(int x, int y, Pixel pixel) override;
         bool try_set_pixel(int x, int y, Pixel pixel) override; // true if set
-        Pixel get_pixel(int x, int y) const override;
 
     private:
         Bmp();
