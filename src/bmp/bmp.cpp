@@ -101,7 +101,7 @@ void Bmp::set_pixel(int x, int y, Pixel pixel) {
     m_pixels[y * m_width + x] = pixel;
 }
     
-bool Bmp::set_pixel_unsafe(int x, int y, Pixel pixel) {
+bool Bmp::try_set_pixel(int x, int y, Pixel pixel) {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
         return false;
     m_pixels[y * m_width + x] = pixel;

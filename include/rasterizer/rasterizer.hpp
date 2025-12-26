@@ -3,17 +3,13 @@
 #include <concepts>
 
 #include "interface_pixeled.hpp"
+#include "bmp/bmp.hpp"
+#include <algorithm>
 
 namespace iheay::raster {
 
-    template <typename T>
-    requires std::derived_from<IPixeled, T>
-    class Rasterizer {
-
-    public:
-        void draw_line_dda(T& image, int x0, int y0, int x1, int y1, Pixel color);
-        void draw_line_bresenham(T& image, int x0, int y0, int x1, int y1, Pixel color);
-
-    };
+    void draw_line_dda(IPixeled& image, int x0, int y0, int x1, int y1, iheay::bmp::Pixel color);
+    void draw_line_bresenham(IPixeled& image, int x0, int y0, int x1, int y1, iheay::bmp::Pixel color);
+    void fill_background(IPixeled& image, iheay::bmp::Pixel color);
 
 }

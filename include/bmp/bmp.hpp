@@ -6,7 +6,7 @@
 #include <cstring>
 
 #include "bmp_structs.hpp"
-#include "raster/interface_pixeled.hpp"
+#include "rasterizer/interface_pixeled.hpp"
 
 namespace iheay::bmp {
 
@@ -23,7 +23,7 @@ namespace iheay::bmp {
         int get_height() const override;
         
         void set_pixel(int x, int y, Pixel pixel) override;
-        bool set_pixel_unsafe(int x, int y, Pixel pixel) override; // true if set
+        bool try_set_pixel(int x, int y, Pixel pixel) override; // true if set
         Pixel get_pixel(int x, int y) const override;
 
     private:
