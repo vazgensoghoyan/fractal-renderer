@@ -2,12 +2,18 @@
 #include "fractal/complex_fractal.hpp"
 #include "bmp/bmp_io.hpp"
 #include "math/complex.hpp"
+#include "utils/logger.hpp"
+#include <omp.h>
 
 using namespace iheay;
 using namespace iheay::bmp;
 using namespace iheay::math;
 
 Bmp fractal::draw_mandelbrot(int width, int height) {
+    LOG_INFO("Rendering Mandelbrot started");
+
+    volatile double time_start = omp_get_wtime();
+
     bmp::Bmp img = bmp::Bmp::empty(width, height);
 
     fractal::Viewport view{
@@ -23,10 +29,18 @@ Bmp fractal::draw_mandelbrot(int width, int height) {
         {300, 2.0}
     );
 
+    volatile double time_end = omp_get_wtime();
+
+    LOG_INFO("Rendering Mandelbrot finished in %.2f seconds", time_end - time_start);
+
     return img;
 }
 
 Bmp fractal::draw_julia(int width, int height) {
+    LOG_INFO("Rendering Julia started");
+
+     volatile double time_start = omp_get_wtime();
+
     bmp::Bmp img = bmp::Bmp::empty(width, height);
 
     fractal::Viewport view{
@@ -43,6 +57,10 @@ Bmp fractal::draw_julia(int width, int height) {
         [&](auto&) { return k; },
         {300, 2.0}
     );
+
+    volatile double time_end = omp_get_wtime();
+
+    LOG_INFO("Rendering Julia finished in %.2f seconds", time_end - time_start);
 
     return img;
 }

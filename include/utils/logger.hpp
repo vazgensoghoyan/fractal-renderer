@@ -21,28 +21,28 @@ public:
     static void info(const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        log("INFO", fmt, args);
+        log("INFO", "\033[32m", fmt, args); // зеленый
         va_end(args);
     }
 
     static void debug(const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        log("DEBUG", fmt, args);
+        log("DEBUG", "\033[36m", fmt, args); // голубой
         va_end(args);
     }
 
     static void error(const char* fmt, ...) {
         va_list args;
         va_start(args, fmt);
-        log("ERROR", fmt, args);
+        log("ERROR", "\033[31m", fmt, args); // красный
         va_end(args);
     }
 
 private:
-    static std::mutex m_mutex;
+    static inline std::mutex m_mutex;
 
-    static void log(const std::string& tag, const char* fmt, va_list args) {
+    static void log(const std::string& tag, const char* color, const char* fmt, va_list args) {
         va_list args_copy;
         va_copy(args_copy, args);
         int size = std::vsnprintf(nullptr, 0, fmt, args_copy);
@@ -62,10 +62,10 @@ private:
 
         std::lock_guard<std::mutex> lock(m_mutex);
         std::cout << std::put_time(&tm, "%Y-%m-%d %H:%M:%S")
-                  << " [" << tag << "] " << buffer.data() << std::endl;
+                << " " << color << "[" << tag << "]\033[0m "
+                << buffer.data()
+                << std::endl;
     }
 };
 
-std::mutex Logger::m_mutex;
-
-} // namespace iheay::util
+} // namespace iheay::utils

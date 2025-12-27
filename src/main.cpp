@@ -6,28 +6,32 @@
 #include "rasterizer/rasterizer.hpp"
 #include "fractal/complex_fractal.hpp"
 #include "fractal/concrete_fractals.hpp"
+#include "utils/logger.hpp"
 #include <omp.h>
 
 using namespace iheay;
 
 int main() {
 
-    const int WIDTH = 8000;
-    const int HEIGHT = 8000;
+    try {
 
-    bmp::Bmp img = bmp::Bmp::empty(WIDTH, HEIGHT);
+        const int WIDTH = 8000;
+        const int HEIGHT = 8000;
 
-    volatile double start_time = omp_get_wtime();
+        bmp::Bmp img = bmp::Bmp::empty(WIDTH, HEIGHT);
 
-    img = fractal::draw_mandelbrot(WIDTH, HEIGHT);
-    bmp::BmpIO::save(img, "mandelbrot.bmp");
+        img = fractal::draw_mandelbrot(WIDTH, HEIGHT);
+        bmp::BmpIO::save(img, "mandelbrot.bmp");
 
-    img = fractal::draw_julia(WIDTH, HEIGHT);
-    bmp::BmpIO::save(img, "julia.bmp");
+        img = fractal::draw_julia(WIDTH, HEIGHT);
+        bmp::BmpIO::save(img, "julia.bmp");
 
-    volatile double end_time = omp_get_wtime();
-    
-    std::cout << "Total time: " << (end_time - start_time) << " seconds\n";
+    } catch (const std::exception& e) {
+        
+        LOG_ERROR("Exception: {}", e.what());
+
+        return 1;
+    }
 
     return 0;
 }

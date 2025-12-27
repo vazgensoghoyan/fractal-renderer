@@ -16,6 +16,7 @@ static uint32_t row_size_bytes(int width) {
 
 Bmp BmpIO::load(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
+    
     if (!file)
         throw std::runtime_error("Cannot open file");
 
