@@ -14,9 +14,6 @@ namespace iheay::bmp {
         static Bmp load(const std::string& path);
         static void save(const Bmp& bmp, const std::string& path);
 
-    private:
-        static uint32_t row_size_bytes(int width);
-
     };
 
 }

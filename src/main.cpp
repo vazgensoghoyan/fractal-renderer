@@ -4,6 +4,7 @@
 #include "bmp/bmp_io.hpp"
 #include "bmp/bmp_colors.hpp"
 #include "rasterizer/rasterizer.hpp"
+#include "fractal/complex_fractal.hpp"
 
 using namespace iheay;
 
@@ -40,18 +41,56 @@ void render(const std::string& output_file) {
     bmp::BmpIO::save(bmp, output_file);
 }
 
-int main(int argc, char** argv) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " output_file.bmp\n";
-        return 1;
-    }
+void draw_mandelbrot(int width, int height, const std::string& output_file) {
+    using namespace iheay::math;
+    
+    bmp::Bmp img = bmp::Bmp::empty(width, height);
 
-    try {
-        render(argv[1]);
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n";
-        return 1;
-    }
+    fractal::Viewport view{
+        Complex::Algebraic(-2.0, -1.5),
+        Complex::Algebraic(1.0, 1.5)
+    };
 
+    fractal::render_complex_fractal(
+        img, view,
+        [](auto& z, auto& c) { return z*z + c; },
+        [](auto&) { return Complex::Zero(); },
+        [](auto& pixel) { return pixel; },
+        {300, 2.0}
+    );
+
+    bmp::BmpIO::save(img, output_file);
+}
+
+void draw_julia(int width, int height, const std::string& output_file) {
+    using namespace iheay::math;
+    
+    bmp::Bmp img = bmp::Bmp::empty(width, height);
+
+    fractal::Viewport view{
+        Complex::Algebraic(-2.0, -1.5),
+        Complex::Algebraic(1.0, 1.5)
+    };
+
+    Complex k = Complex::Algebraic(-0.8, 0.156);
+
+    fractal::render_complex_fractal(
+        img, view,
+        [](auto& z, auto& c) { return z*z + c; },
+        [](auto& pixel) { return pixel; },
+        [&](auto&) { return k; },
+        {300, 2.0}
+    );
+
+    bmp::BmpIO::save(img, output_file);
+}
+
+int main() {
+    render("lines.bmp");
+
+    //draw_mandelbrot(2000, 2000, "mandelbrot.bmp");
+
+    draw_julia(2000, 2000, "julia.bmp");
+    
     return 0;
 }

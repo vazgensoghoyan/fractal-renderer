@@ -2,9 +2,9 @@
 
 using namespace iheay::bmp;
 
-// private static util
+// local static util
 
-uint32_t BmpIO::row_size_bytes(int width) {
+static uint32_t row_size_bytes(int width) {
     return ((width * 24 + 31) / 32) * 4;
 }
 
