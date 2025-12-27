@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "math/complex.hpp"
+#include "bmp/bmp.hpp"
 #include "rasterizer/interface_pixeled.hpp"
 
 namespace iheay::fractal {
@@ -22,8 +23,8 @@ using InitialFunc = std::function<math::Complex(const math::Complex& pixel)>;
 
 using ParamFunc = std::function<math::Complex(const math::Complex& pixel)>;
 
-void render_complex_fractal(
-    raster::IPixeled& image,
+iheay::bmp::Bmp render_complex_fractal(
+    int width, int height,
     const Viewport& view,
     IterationFunc iterate,
     InitialFunc initial,

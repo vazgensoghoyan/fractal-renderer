@@ -14,15 +14,14 @@ Bmp fractal::draw_mandelbrot(int width, int height) {
 
     volatile double time_start = omp_get_wtime();
 
-    bmp::Bmp img = bmp::Bmp::empty(width, height);
-
     fractal::Viewport view{
         Complex::Algebraic(-2.0, -1.5),
         Complex::Algebraic(1.0, 1.5)
     };
 
-    fractal::render_complex_fractal(
-        img, view,
+    bmp::Bmp img = fractal::render_complex_fractal(
+        width, height,
+        view,
         [](auto& z, auto& c) { return z*z + c; },
         [](auto&) { return Complex::Zero(); },
         [](auto& pixel) { return pixel; },
@@ -41,8 +40,6 @@ Bmp fractal::draw_julia(int width, int height) {
 
      volatile double time_start = omp_get_wtime();
 
-    bmp::Bmp img = bmp::Bmp::empty(width, height);
-
     fractal::Viewport view{
         Complex::Algebraic(-2.0, -1.5),
         Complex::Algebraic(1.0, 1.5)
@@ -50,8 +47,9 @@ Bmp fractal::draw_julia(int width, int height) {
 
     Complex k = Complex::Algebraic(-0.8, 0.156);
 
-    fractal::render_complex_fractal(
-        img, view,
+    bmp::Bmp img = fractal::render_complex_fractal(
+        width, height,
+        view,
         [](auto& z, auto& c) { return z*z + c; },
         [](auto& pixel) { return pixel; },
         [&](auto&) { return k; },

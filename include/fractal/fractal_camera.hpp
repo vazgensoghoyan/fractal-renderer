@@ -7,13 +7,13 @@ namespace iheay::fractal {
 
 struct FractalCamera {
     math::Complex center;
-    double scale;
+    double scale; // половина ширины по real-оси
 };
 
 Viewport make_viewport(
     const FractalCamera& cam,
-    int width,
-    int height
+    int image_width,
+    int image_height
 );
 
-}
+} // namespace iheay::fractal

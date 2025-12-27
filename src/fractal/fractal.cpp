@@ -1,8 +1,10 @@
 #include "fractal/fractal.hpp"
+#include "utils/logger.hpp"
 #include <omp.h>
 
 using namespace iheay;
 using namespace iheay::math;
+using namespace iheay::bmp;
 
 namespace {
 
@@ -19,16 +21,22 @@ inline Complex pixel_to_complex_fast(
 
 } // namespace
 
-void iheay::fractal::render_complex_fractal(
-    raster::IPixeled& image,
+Bmp iheay::fractal::render_complex_fractal(
+    int width, int height,
     const Viewport& view,
     IterationFunc iterate,
     InitialFunc initial,
     ParamFunc parameter,
     const FractalConfig& cfg
 ) {
-    const int width  = image.width();
-    const int height = image.height();
+    LOG_INFO("Starting fractal rendering: %dx%d, max_iter=%d, escape_radius=%.2f",
+        width, height,
+        cfg.max_iter, cfg.escape_radius
+    );
+
+    Bmp image = Bmp::empty(width, height);
+
+    volatile double time_start = omp_get_wtime();
 
     const double real_min = view.min.real();
     const double real_max = view.max.real();
@@ -79,7 +87,13 @@ void iheay::fractal::render_complex_fractal(
                 return {r, g, b}; // поменял местами, выглядит классно (по факту b, g, r)
             };
 
-            image.set_pixel(x, y, color_from_iter(iter, cfg.max_iter));
+            image.try_set_pixel(x, y, color_from_iter(iter, cfg.max_iter));
         }
     }
+
+    volatile double time_end = omp_get_wtime();
+    
+    LOG_INFO("Fractal rendering completed in %.3f seconds", time_end - time_start);
+
+    return image;
 }
