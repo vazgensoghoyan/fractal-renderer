@@ -1,4 +1,5 @@
 #include "bmp/bmp.hpp"
+#include <stdexcept>
 
 using namespace iheay::bmp;
 

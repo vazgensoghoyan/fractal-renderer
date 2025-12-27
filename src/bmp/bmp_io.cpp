@@ -1,4 +1,7 @@
 #include "bmp/bmp_io.hpp"
+#include <fstream>
+#include <stdexcept>
+#include <cstring>
 
 using namespace iheay::bmp;
 
