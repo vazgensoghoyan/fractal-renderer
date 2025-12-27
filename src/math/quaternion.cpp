@@ -86,19 +86,17 @@ Quaternion Quaternion::inverse() const {
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }
 
-Quaternion Quaternion::pow(int n) const { // simple recursive binary pow
-    if (n == 0)
-        return Quaternion(1, 0, 0, 0);
+Quaternion Quaternion::pow(int n) const {
+    Quaternion result(1,0,0,0);
+    Quaternion base = *this;
 
-    if (n == 1)
-        return *this;
+    while (n > 0) {
+        if (n & 1) result = result * base;
+        base = base * base;
+        n >>= 1;
+    }
 
-    if (n & 1)
-        return (*this) * pow(n-1);
-    
-    Quaternion half_pow = pow(n / 2);
-
-    return half_pow * half_pow;
+    return result;
 }
 
 // static method to rotate
