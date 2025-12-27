@@ -31,13 +31,4 @@ void render_complex_fractal(
     const FractalConfig& cfg
 );
 
-void render_complex_fractal2(
-    raster::IPixeled& image,
-    const Viewport& view,
-    IterationFunc iterate,
-    InitialFunc initial,
-    ParamFunc parameter,
-    const FractalConfig& cfg
-);
-
 } // namespace iheay::fractal

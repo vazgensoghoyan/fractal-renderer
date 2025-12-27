@@ -32,21 +32,5 @@ int main() {
     
     std::cout << "Total time: " << (end_time - start_time) << " seconds\n";
 
-
-    volatile double start_time2 = omp_get_wtime();
-
-    img = fractal::draw_mandelbrot2(WIDTH, HEIGHT);
-    bmp::BmpIO::save(img, "mandelbrot2.bmp");
-
-    img = fractal::draw_julia2(WIDTH, HEIGHT);
-    bmp::BmpIO::save(img, "julia2.bmp");
-
-    img = fractal::draw_burning_ship2(WIDTH, HEIGHT);
-    bmp::BmpIO::save(img, "burning_ship2.bmp");
-
-    volatile double end_time2 = omp_get_wtime();
-    
-    std::cout << "Total time: " << (end_time2 - start_time2) << " seconds\n";
-
     return 0;
 }
