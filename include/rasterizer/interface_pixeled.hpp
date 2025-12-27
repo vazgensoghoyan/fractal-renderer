@@ -1,4 +1,4 @@
-#pragma once // interface_pixeled.hpp
+#pragma once // rasterizer/interface_pixeled.hpp
 
 #include "bmp/bmp_structs.hpp"
 

@@ -1,8 +1,8 @@
-#pragma once // bmp.hpp
+#pragma once // bmp/bmp.hpp
 
 #include <vector>
 
-#include "bmp_structs.hpp"
+#include "bmp/bmp_structs.hpp"
 #include "rasterizer/interface_pixeled.hpp"
 
 namespace iheay::bmp {

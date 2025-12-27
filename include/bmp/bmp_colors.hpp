@@ -1,6 +1,6 @@
-#pragma once // bmp_colors.hpp
+#pragma once // bmp/bmp_colors.hpp
 
-#include "bmp_structs.hpp"
+#include "bmp/bmp_structs.hpp"
 
 namespace iheay::bmp::colors {
 

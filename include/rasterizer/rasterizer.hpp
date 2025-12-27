@@ -1,6 +1,6 @@
-#pragma once // rasterizer.hpp
+#pragma once // rasterizer/rasterizer.hpp
 
-#include "interface_pixeled.hpp"
+#include "rasterizer/interface_pixeled.hpp"
 #include "bmp/bmp.hpp"
 
 namespace iheay::raster {

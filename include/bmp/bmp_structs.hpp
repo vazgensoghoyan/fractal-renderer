@@ -1,4 +1,4 @@
-#pragma once // bmp_structs.hpp
+#pragma once // bmp/bmp_structs.hpp
 
 #include <cstdint>
 

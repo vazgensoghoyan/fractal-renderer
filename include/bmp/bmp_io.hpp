@@ -1,7 +1,7 @@
-#pragma once // bmp_io.hpp
+#pragma once // bmp/bmp_io.hpp
 
 #include <string>
-#include "bmp.hpp"
+#include "bmp/bmp.hpp"
 
 namespace iheay::bmp {
 

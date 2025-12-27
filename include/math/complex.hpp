@@ -1,4 +1,4 @@
-#pragma once // complex.hpp
+#pragma once // math/complex.hpp
 
 #include <vector>
 #include <string>

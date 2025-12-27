@@ -1,4 +1,4 @@
-#pragma once // concrete_fractals.hpp
+#pragma once // fractal/concrete_fractals.hpp
 
 #include "bmp/bmp.hpp"
 

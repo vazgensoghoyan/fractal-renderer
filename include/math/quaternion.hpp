@@ -1,7 +1,7 @@
-#pragma once // quaternion.hpp
+#pragma once // math/quaternion.hpp
 
-#include "complex.hpp"
-#include "vec3.hpp"
+#include "math/complex.hpp"
+#include "math/vec3.hpp"
 
 namespace iheay::math {
 
