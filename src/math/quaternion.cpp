@@ -16,32 +16,32 @@ Quaternion::Quaternion(Complex z0, Complex z1)
 
 // property
 
-double Quaternion::get_a() const {
-    return m_z0.get_real();
+double Quaternion::a() const {
+    return m_z0.real();
 }
 
-double Quaternion::get_b() const {
-    return m_z0.get_imag();
+double Quaternion::b() const {
+    return m_z0.imag();
 }
 
-double Quaternion::get_c() const {
-    return m_z1.get_real();
+double Quaternion::c() const {
+    return m_z1.real();
 }
 
-double Quaternion::get_d() const {
-    return m_z1.get_imag();
+double Quaternion::d() const {
+    return m_z1.imag();
 }
 
-Complex Quaternion::get_z0() const {
+Complex Quaternion::z0() const {
     return m_z0;
 }
 
-Complex Quaternion::get_z1() const {
+Complex Quaternion::z1() const {
     return m_z1;
 }
 
-double Quaternion::get_modulus() const {
-    return std::hypot(m_z0.get_modulus(), m_z1.get_modulus());
+double Quaternion::modulus() const {
+    return std::hypot(m_z0.modulus(), m_z1.modulus());
 }
 
 // unary operators
@@ -77,8 +77,8 @@ Quaternion Quaternion::operator*(const Quaternion& other) const {
 // methods
 
 Quaternion Quaternion::inverse() const {
-    double modulus = get_modulus();
-    double squared = modulus * modulus;
+    double modul = modulus();
+    double squared = modul * modul;
 
     Complex new_z0 = ~m_z0 / squared;
     Complex new_z1 = -m_z1 / squared;
@@ -111,7 +111,7 @@ Vec3 Quaternion::rotate_point(const Vec3& point, const Vec3& u, double phi) {
 
     Quaternion answer = q * v * q.inverse();
 
-    return Vec3( answer.get_b(), answer.get_c(), answer.get_d() );
+    return Vec3( answer.b(), answer.c(), answer.d() );
 }
 
 Vec3 Quaternion::rotate_x(const Vec3& point, double phi) {
@@ -131,9 +131,9 @@ Vec3 Quaternion::rotate_z(const Vec3& point, double phi) {
 std::string Quaternion::to_string() const {
     return std::format(
         "{} + i * {} + j * {} + k * {}",
-        m_z0.get_real(),
-        m_z0.get_imag(),
-        m_z1.get_real(),
-        m_z1.get_imag()
+        m_z0.real(),
+        m_z0.imag(),
+        m_z1.real(),
+        m_z1.imag()
     );
 }

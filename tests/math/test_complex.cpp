@@ -9,13 +9,13 @@ using namespace iheay::math;
 constexpr double EPS = 1e-5;
 
 static void ExpectComplexNear(const Complex& actual, double real, double imag, double eps = EPS) {
-    EXPECT_NEAR(actual.get_real(), real, eps);
-    EXPECT_NEAR(actual.get_imag(), imag, eps);
+    EXPECT_NEAR(actual.real(), real, eps);
+    EXPECT_NEAR(actual.imag(), imag, eps);
 }
 
 static void ExpectComplexEqual(const Complex& a, const Complex& b, double eps = EPS) {
-    EXPECT_NEAR(a.get_real(), b.get_real(), eps);
-    EXPECT_NEAR(a.get_imag(), b.get_imag(), eps);
+    EXPECT_NEAR(a.real(), b.real(), eps);
+    EXPECT_NEAR(a.imag(), b.imag(), eps);
 }
 
 TEST(ComplexTest, FactoryMethods) {
@@ -23,12 +23,12 @@ TEST(ComplexTest, FactoryMethods) {
 
     auto c1 = Complex::Algebraic(3.0, 4.0);
     ExpectComplexNear(c1, 3.0, 4.0);
-    EXPECT_NEAR(c1.get_modulus(), 5.0, EPS);
+    EXPECT_NEAR(c1.modulus(), 5.0, EPS);
 
     double r = 2.0, theta = M_PI / 4;
     auto c2 = Complex::Trigonometric(r, theta);
-    EXPECT_NEAR(c2.get_modulus(), r, EPS);
-    EXPECT_NEAR(c2.get_arg(), theta, EPS);
+    EXPECT_NEAR(c2.modulus(), r, EPS);
+    EXPECT_NEAR(c2.arg(), theta, EPS);
 }
 
 TEST(ComplexTest, ArithmeticOperations) {
@@ -55,25 +55,25 @@ TEST(ComplexTest, PowerAndRoots) {
     EXPECT_EQ(roots.size(), 2);
     for (auto& root : roots) {
         auto sq = root.pow(2);
-        ExpectComplexNear(sq, c.get_real(), c.get_imag());
+        ExpectComplexNear(sq, c.real(), c.imag());
     }
 }
 
 TEST(ComplexTest, ArgAndModulus) {
     auto c1 = Complex::Algebraic(0.0, 1.0);
-    EXPECT_NEAR(c1.get_modulus(), 1.0, EPS);
-    EXPECT_NEAR(c1.get_arg(), M_PI / 2, EPS);
+    EXPECT_NEAR(c1.modulus(), 1.0, EPS);
+    EXPECT_NEAR(c1.arg(), M_PI / 2, EPS);
 
     auto c2 = Complex::Algebraic(-1.0, 0.0);
-    EXPECT_NEAR(c2.get_arg(), M_PI, EPS);
+    EXPECT_NEAR(c2.arg(), M_PI, EPS);
 }
 
 TEST(ComplexTest, ArgumentSpecialCases) {
-    EXPECT_NEAR(Complex::Algebraic(0, 11).get_arg(), M_PI / 2, EPS);
-    EXPECT_NEAR(Complex::Algebraic(0, -100).get_arg(), 3 * M_PI / 2, EPS);
-    EXPECT_NEAR(Complex::Algebraic(117, -1).get_arg(), std::atan(-1.0 / 117) + 2 * M_PI, EPS);
-    EXPECT_NEAR(Complex::Algebraic(-708, 19).get_arg(), M_PI + std::atan(-19.0 / 708), EPS);
-    EXPECT_NEAR(Complex::Algebraic(-78, -13).get_arg(), M_PI + std::atan(13.0 / 78), EPS);
+    EXPECT_NEAR(Complex::Algebraic(0, 11).arg(), M_PI / 2, EPS);
+    EXPECT_NEAR(Complex::Algebraic(0, -100).arg(), 3 * M_PI / 2, EPS);
+    EXPECT_NEAR(Complex::Algebraic(117, -1).arg(), std::atan(-1.0 / 117) + 2 * M_PI, EPS);
+    EXPECT_NEAR(Complex::Algebraic(-708, 19).arg(), M_PI + std::atan(-19.0 / 708), EPS);
+    EXPECT_NEAR(Complex::Algebraic(-78, -13).arg(), M_PI + std::atan(13.0 / 78), EPS);
 }
 
 TEST(ComplexTest, BasicArithmetic) {
@@ -101,7 +101,7 @@ TEST(ComplexTest, RootExtraction) {
 
     for (auto& r : roots) {
         auto r_cubed = r.pow(3);
-        EXPECT_NEAR(r_cubed.get_real(), n.get_real(), EPS);
-        EXPECT_NEAR(r_cubed.get_imag(), n.get_imag(), EPS);
+        EXPECT_NEAR(r_cubed.real(), n.real(), EPS);
+        EXPECT_NEAR(r_cubed.imag(), n.imag(), EPS);
     }
 }

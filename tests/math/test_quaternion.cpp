@@ -11,18 +11,18 @@ using namespace iheay::math;
 constexpr double EPS = 1e-5;
 
 static void ExpectComplexNear(const Complex& actual, double real, double imag, double eps = EPS) {
-    EXPECT_NEAR(actual.get_real(), real, eps);
-    EXPECT_NEAR(actual.get_imag(), imag, eps);
+    EXPECT_NEAR(actual.real(), real, eps);
+    EXPECT_NEAR(actual.imag(), imag, eps);
 }
 
 static void ExpectQuaternionNear(const Quaternion& q, const Complex& z0, const Complex& z1, double eps = EPS) {
-    ExpectComplexNear(q.get_z0(), z0.get_real(), z0.get_imag(), eps);
-    ExpectComplexNear(q.get_z1(), z1.get_real(), z1.get_imag(), eps);
+    ExpectComplexNear(q.z0(), z0.real(), z0.imag(), eps);
+    ExpectComplexNear(q.z1(), z1.real(), z1.imag(), eps);
 }
 
 static void ExpectQuaternionNear(const Quaternion& q, double a, double b, double c, double d, double eps = EPS) {
-    ExpectComplexNear(q.get_z0(), a, b, eps);
-    ExpectComplexNear(q.get_z1(), c, d, eps);
+    ExpectComplexNear(q.z0(), a, b, eps);
+    ExpectComplexNear(q.z1(), c, d, eps);
 }
 
 TEST(QuaternionTest, ConstructorsAndModulus) {
@@ -33,9 +33,9 @@ TEST(QuaternionTest, ConstructorsAndModulus) {
 
     ExpectQuaternionNear(q1, 1, 2, 3, -4);
 
-    double expected_modulus = std::hypot(a.get_modulus(), b.get_modulus());
+    double expected_modulus = std::hypot(a.modulus(), b.modulus());
     
-    EXPECT_NEAR(q1.get_modulus(), expected_modulus, EPS);
+    EXPECT_NEAR(q1.modulus(), expected_modulus, EPS);
 }
 
 TEST(QuaternionTest, ArithmeticOperations) {
@@ -71,8 +71,8 @@ TEST(QuaternionTest, Power) {
     Quaternion q2 = q.pow(2);
 
     Quaternion q_pow_manual = q * q;
-    ExpectComplexNear(q2.get_z0(), q_pow_manual.get_z0().get_real(), q_pow_manual.get_z0().get_imag());
-    ExpectComplexNear(q2.get_z1(), q_pow_manual.get_z1().get_real(), q_pow_manual.get_z1().get_imag());
+    ExpectComplexNear(q2.z0(), q_pow_manual.z0().real(), q_pow_manual.z0().imag());
+    ExpectComplexNear(q2.z1(), q_pow_manual.z1().real(), q_pow_manual.z1().imag());
 }
 
 TEST(QuaternionTest, ComplexCombination) {

@@ -47,19 +47,19 @@ Complex Complex::Trigonometric(double modulus, double arg) {
 
 // properties
 
-double Complex::get_real() const {
+double Complex::real() const {
     return m_real;
 }
 
-double Complex::get_imag() const {
+double Complex::imag() const {
     return m_imag;
 }
 
-double Complex::get_modulus() const {
+double Complex::modulus() const {
     return std::hypot(m_real, m_imag);
 }
 
-double Complex::get_arg() const {
+double Complex::arg() const {
     double arg = atan2(m_imag, m_real);
     return normalize_arg(arg);
 }
@@ -117,8 +117,8 @@ Complex Complex::operator/(double scalar) const {
 std::vector<Complex> Complex::get_roots(int n) const {
     std::vector<Complex> roots(n);
     
-    double res_modulus = std::pow(get_modulus(), 1.0 / n);
-    double arg_i = get_arg() / n;
+    double res_modulus = std::pow(modulus(), 1.0 / n);
+    double arg_i = arg() / n;
 
     for (int i = 0; i < n; i++) {
         roots[i] = Trigonometric(res_modulus, arg_i);
@@ -129,13 +129,13 @@ std::vector<Complex> Complex::get_roots(int n) const {
 }
 
 Complex Complex::pow(int n) const { // simple recursive binary pow
-    double new_modulus = std::pow(get_modulus(), n);
-    double new_arg = get_arg() * n;
+    double new_modulus = std::pow(modulus(), n);
+    double new_arg = arg() * n;
     return Trigonometric(new_modulus, new_arg);
 }
 
 // to string
 
-std::string Complex::to_string() const {
-    return std::format("{} + i * {}", m_real, m_imag);
+std::ostream& operator<<(std::ostream& os, const Complex& c) {
+    return os << std::format("{} + i * {}", c.real(), c.imag());
 }

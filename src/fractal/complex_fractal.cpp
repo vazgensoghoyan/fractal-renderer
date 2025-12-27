@@ -30,10 +30,10 @@ void iheay::fractal::render_complex_fractal(
     const int width  = image.width();
     const int height = image.height();
 
-    const double real_min = view.min.get_real();
-    const double real_max = view.max.get_real();
-    const double imag_min = view.min.get_imag();
-    const double imag_max = view.max.get_imag();
+    const double real_min = view.min.real();
+    const double real_max = view.max.real();
+    const double imag_min = view.min.imag();
+    const double imag_max = view.max.imag();
 
     const double real_step = (real_max - real_min) / (width  - 1);
     const double imag_step = (imag_max - imag_min) / (height - 1);
@@ -58,8 +58,8 @@ void iheay::fractal::render_complex_fractal(
 
             int iter = 0;
             while (iter < cfg.max_iter) {
-                const double zr = z.get_real();
-                const double zi = z.get_imag();
+                const double zr = z.real();
+                const double zi = z.imag();
 
                 if (zr * zr + zi * zi > escape_radius_sq) {
                     break;
