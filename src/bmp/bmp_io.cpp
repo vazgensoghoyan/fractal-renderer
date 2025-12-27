@@ -1,4 +1,5 @@
 #include "bmp/bmp_io.hpp"
+#include "utils/logger.hpp"
 #include <fstream>
 #include <stdexcept>
 #include <cstring>
@@ -62,6 +63,8 @@ Bmp BmpIO::load(const std::string& path) {
         );
     }
 
+    LOG_INFO("Loaded BMP image: %s (%dx%d)", path.c_str(), width, height);
+
     return bmp;
 }
 
@@ -106,5 +109,7 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
         );
         file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }
+
+    LOG_INFO("Saved BMP image: %s (%dx%d)", path.c_str(), bmp.m_width, bmp.m_height);
 }
 

@@ -69,14 +69,18 @@ void iheay::fractal::render_complex_fractal(
                 ++iter;
             }
 
-            const uint8_t shade =
-                (iter == cfg.max_iter)
-                    ? 0
-                    : static_cast<uint8_t>(
-                          255.0 * iter / cfg.max_iter
-                      );
+            auto color_from_iter = [](int iter, int max_iter) -> iheay::bmp::Pixel {
+                if (iter == max_iter)
+                    return {0, 0, 0};
 
-            image.set_pixel(x, y, {shade, shade, shade});
+                uint8_t r = static_cast<uint8_t>(9 * (1 - iter / (double)max_iter) * pow(iter / (double)max_iter, 3) * 255);
+                uint8_t g = static_cast<uint8_t>(15 * pow(1 - iter / (double)max_iter, 2) * pow(iter / (double)max_iter, 2) * 255);
+                uint8_t b = static_cast<uint8_t>(8.5 * pow(1 - iter / (double)max_iter, 3) * (iter / (double)max_iter) * 255);
+
+                return {b, g, r};
+            };
+
+            image.set_pixel(x, y, color_from_iter(iter, cfg.max_iter));
         }
     }
 }
