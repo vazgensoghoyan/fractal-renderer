@@ -28,13 +28,13 @@ void iheay::fractal::render_complex_fractal(
     ParamFunc parameter,
     const FractalConfig& cfg
 ) {
-    for (int y = 0; y < image.get_height(); ++y) {
-        for (int x = 0; x < image.get_width(); ++x) {
+    for (int y = 0; y < image.height(); ++y) {
+        for (int x = 0; x < image.width(); ++x) {
 
             Complex pixel = pixel_to_complex(
                 x, y,
-                image.get_width(),
-                image.get_height(),
+                image.width(),
+                image.height(),
                 view
             );
 

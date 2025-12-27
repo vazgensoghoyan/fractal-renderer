@@ -88,9 +88,9 @@ TEST(QuaternionTest, ComplexCombination) {
 }
 
 static void ExpectVec3Near(const Vec3& v, double x, double y, double z, double eps = EPS) {
-    EXPECT_NEAR(v.get_x(), x, eps);
-    EXPECT_NEAR(v.get_y(), y, eps);
-    EXPECT_NEAR(v.get_z(), z, eps);
+    EXPECT_NEAR(v.x(), x, eps);
+    EXPECT_NEAR(v.y(), y, eps);
+    EXPECT_NEAR(v.z(), z, eps);
 }
 
 TEST(QuaternionRotationTest, RotateAroundX) {

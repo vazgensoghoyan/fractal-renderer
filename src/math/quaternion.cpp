@@ -104,10 +104,10 @@ Quaternion Quaternion::pow(int n) const {
 Vec3 Quaternion::rotate_point(const Vec3& point, const Vec3& u, double phi) {
     phi /= 2;
     
-    Quaternion v = Quaternion( 0, point.get_x(), point.get_y(), point.get_z() );
+    Quaternion v = Quaternion( 0, point.x(), point.y(), point.z() );
 
-    Vec3 s = u.normalize() * sin(phi);
-    Quaternion q = Quaternion( cos(phi), s.get_x(), s.get_y(), s.get_z() );
+    Vec3 s = u.normalized() * sin(phi);
+    Quaternion q = Quaternion( cos(phi), s.x(), s.y(), s.z() );
 
     Quaternion answer = q * v * q.inverse();
 

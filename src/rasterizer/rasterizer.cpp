@@ -1,4 +1,5 @@
 #include "rasterizer/rasterizer.hpp"
+#include <algorithm>
 
 using namespace iheay::bmp;
 
@@ -46,7 +47,7 @@ void iheay::raster::draw_line_bresenham(IPixeled& image, int x0, int y0, int x1,
 }
 
 void iheay::raster::fill_background(IPixeled& image, iheay::bmp::Pixel color) {
-    for (int y = 0; y < image.get_height(); ++y)
-        for (int x = 0; x < image.get_width(); ++x)
+    for (int y = 0; y < image.height(); ++y)
+        for (int x = 0; x < image.width(); ++x)
             image.set_pixel(x, y, color);
 }

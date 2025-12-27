@@ -27,11 +27,11 @@ Bmp Bmp::empty(int width, int height, Pixel pixel) {
 
 // width and height properties
 
-int Bmp::get_width() const {
+int Bmp::width() const {
     return m_width;
 }
 
-int Bmp::get_height() const {
+int Bmp::height() const {
     return m_height;
 }
 

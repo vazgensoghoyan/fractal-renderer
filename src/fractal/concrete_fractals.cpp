@@ -1,4 +1,7 @@
 #include "fractal/concrete_fractals.hpp"
+#include "fractal/complex_fractal.hpp"
+#include "bmp/bmp_io.hpp"
+#include "math/complex.hpp"
 
 using namespace iheay;
 using namespace iheay::bmp;

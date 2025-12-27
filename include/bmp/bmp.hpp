@@ -12,8 +12,8 @@ public:
     static Bmp empty(int width, int height); // empty white image
     static Bmp empty(int width, int height, Pixel pixel); // empty image of given color
 
-    int get_width() const override;
-    int get_height() const override;
+    int width() const override;
+    int height() const override;
 
     Pixel get_pixel(int x, int y) const override;
 
