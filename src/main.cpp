@@ -4,7 +4,7 @@
 #include "bmp/bmp_io.hpp"
 #include "bmp/bmp_colors.hpp"
 #include "rasterizer/rasterizer.hpp"
-#include "fractal/complex_fractal.hpp"
+#include "fractal/fractal.hpp"
 #include "fractal/concrete_fractals.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>

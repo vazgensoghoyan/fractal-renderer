@@ -1,4 +1,4 @@
-#include "fractal/complex_fractal.hpp"
+#include "fractal/fractal.hpp"
 #include <omp.h>
 
 using namespace iheay;
@@ -38,8 +38,7 @@ void iheay::fractal::render_complex_fractal(
     const double real_step = (real_max - real_min) / (width  - 1);
     const double imag_step = (imag_max - imag_min) / (height - 1);
 
-    const double escape_radius_sq =
-        cfg.escape_radius * cfg.escape_radius;
+    const double escape_radius_sq = cfg.escape_radius * cfg.escape_radius;
 
     #pragma omp parallel for schedule(dynamic, 8)
     for (int y = 0; y < height; ++y) {
@@ -77,7 +76,7 @@ void iheay::fractal::render_complex_fractal(
                 uint8_t g = static_cast<uint8_t>(15 * pow(1 - iter / (double)max_iter, 2) * pow(iter / (double)max_iter, 2) * 255);
                 uint8_t b = static_cast<uint8_t>(8.5 * pow(1 - iter / (double)max_iter, 3) * (iter / (double)max_iter) * 255);
 
-                return {b, g, r};
+                return {r, g, b}; // поменял местами, выглядит классно (по факту b, g, r)
             };
 
             image.set_pixel(x, y, color_from_iter(iter, cfg.max_iter));

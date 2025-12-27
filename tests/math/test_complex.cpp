@@ -51,7 +51,7 @@ TEST(ComplexTest, PowerAndRoots) {
     auto c = Complex::Algebraic(1.0, 1.0);
     ExpectComplexNear(c.pow(2), 0.0, 2.0);
 
-    auto roots = c.get_roots(2);
+    auto roots = c.take_roots(2);
     EXPECT_EQ(roots.size(), 2);
     for (auto& root : roots) {
         auto sq = root.pow(2);
@@ -97,7 +97,7 @@ TEST(ComplexTest, DivisionAndExponentiation) {
 
 TEST(ComplexTest, RootExtraction) {
     auto n = Complex::Algebraic(-0.5, std::sqrt(3)/2);
-    auto roots = n.get_roots(3);
+    auto roots = n.take_roots(3);
 
     for (auto& r : roots) {
         auto r_cubed = r.pow(3);

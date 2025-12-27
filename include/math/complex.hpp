@@ -31,7 +31,7 @@ public:
     
     Complex operator/(double scalar) const;
 
-    std::vector<Complex> get_roots(int n) const;
+    std::vector<Complex> take_roots(int n) const;
     Complex pow(int n) const;
 
 private:

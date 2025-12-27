@@ -114,7 +114,7 @@ Complex Complex::operator/(double scalar) const {
 
 // methods
 
-std::vector<Complex> Complex::get_roots(int n) const {
+std::vector<Complex> Complex::take_roots(int n) const {
     std::vector<Complex> roots(n);
     
     double res_modulus = std::pow(modulus(), 1.0 / n);

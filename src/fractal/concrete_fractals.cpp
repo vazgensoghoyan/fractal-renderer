@@ -1,5 +1,5 @@
 #include "fractal/concrete_fractals.hpp"
-#include "fractal/complex_fractal.hpp"
+#include "fractal/fractal.hpp"
 #include "bmp/bmp_io.hpp"
 #include "math/complex.hpp"
 #include "utils/logger.hpp"
