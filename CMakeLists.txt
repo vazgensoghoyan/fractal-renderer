@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
 project(IheayProject VERSION 1.0 LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(OpenMP REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
@@ -13,6 +16,10 @@ file(GLOB_RECURSE LIB_SOURCES
 list(FILTER LIB_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
 
 add_library(iheay_lib ${LIB_SOURCES})
+
+target_link_libraries(iheay_lib
+    PUBLIC OpenMP::OpenMP_CXX
+)
 
 if(MSVC)
     target_compile_options(iheay_lib PRIVATE /W4 /permissive-)

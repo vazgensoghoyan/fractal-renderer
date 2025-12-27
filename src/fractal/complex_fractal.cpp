@@ -4,7 +4,7 @@ using namespace iheay;
 using namespace iheay::math;
 using namespace iheay::fractal;
 
-static Complex pixel_to_complex(
+static Complex pixel_to_complex2(
     int x, int y,
     int w, int h,
     const Viewport& v
@@ -20,7 +20,7 @@ static Complex pixel_to_complex(
     return Complex::Algebraic(real, imag);
 }
 
-void iheay::fractal::render_complex_fractal(
+void iheay::fractal::render_complex_fractal2(
     raster::IPixeled& image,
     const Viewport& view,
     IterationFunc iterate,
@@ -31,7 +31,7 @@ void iheay::fractal::render_complex_fractal(
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
 
-            Complex pixel = pixel_to_complex(
+            Complex pixel = pixel_to_complex2(
                 x, y,
                 image.width(),
                 image.height(),
