@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "bmp/bmp.hpp"
+#include "bmp/bmp_io.hpp"
 #include "bmp/bmp_colors.hpp"
 #include "rasterizer/rasterizer.hpp"
 
@@ -36,7 +37,7 @@ void render(const std::string& output_file) {
 
     draw_image(bmp);
 
-    bmp.save(output_file);
+    bmp::BmpIO::save(bmp, output_file);
 }
 
 int main(int argc, char** argv) {
