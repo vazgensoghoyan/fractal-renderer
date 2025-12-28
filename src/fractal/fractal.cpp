@@ -2,7 +2,7 @@
 #include "utils/logger.hpp"
 #include <omp.h>
 
-using namespace iheay;
+using namespace iheay::fractal;
 using namespace iheay::math;
 using namespace iheay::bmp;
 
@@ -21,38 +21,50 @@ inline Complex pixel_to_complex_fast(
 
 } // namespace
 
-Bmp iheay::fractal::render_complex_fractal(
+// public (yet) constructor
+
+FractalRenderer::FractalRenderer(
     int width, int height,
-    const Viewport& view,
+    Viewport viewport,
     IterationFunc iterate,
-    InitialFunc initial,
-    ParamFunc parameter,
-    const FractalConfig& cfg
-) {
+    InitialFunc init,
+    ParamFunc param,
+    FractalConfig config
+)
+    : m_width(width)
+    , m_height(height)
+    , m_viewport(viewport)
+    , m_iterate(iterate)
+    , m_init(init)
+    , m_param(param)
+    , m_config(config)
+{ }
+
+Bmp FractalRenderer::render() {
     LOG_INFO("Starting fractal rendering: %dx%d, max_iter=%d, escape_radius=%.2f",
-        width, height,
-        cfg.max_iter, cfg.escape_radius
+        m_width, m_height,
+        m_config.max_iter, m_config.escape_radius
     );
 
-    Bmp image = Bmp::empty(width, height);
+    Bmp image = Bmp::empty(m_width, m_height);
 
     volatile double time_start = omp_get_wtime();
 
-    const double real_min = view.min.real();
-    const double real_max = view.max.real();
-    const double imag_min = view.min.imag();
-    const double imag_max = view.max.imag();
+    const double real_min = m_viewport.min.real();
+    const double real_max = m_viewport.max.real();
+    const double imag_min = m_viewport.min.imag();
+    const double imag_max = m_viewport.max.imag();
 
-    const double real_step = (real_max - real_min) / (width  - 1);
-    const double imag_step = (imag_max - imag_min) / (height - 1);
+    const double real_step = (real_max - real_min) / (m_width  - 1);
+    const double imag_step = (imag_max - imag_min) / (m_height - 1);
 
-    const double escape_radius_sq = cfg.escape_radius * cfg.escape_radius;
+    const double escape_radius_sq = m_config.escape_radius * m_config.escape_radius;
 
     #pragma omp parallel for schedule(dynamic, 8)
-    for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < m_height; ++y) {
 
         #pragma omp simd
-        for (int x = 0; x < width; ++x) {
+        for (int x = 0; x < m_width; ++x) {
 
             Complex pixel = pixel_to_complex_fast(
                 x, y,
@@ -60,11 +72,11 @@ Bmp iheay::fractal::render_complex_fractal(
                 real_step, imag_step
             );
 
-            Complex z = initial(pixel);
-            Complex c = parameter(pixel);
+            Complex z = m_init(pixel);
+            Complex c = m_param(pixel);
 
             int iter = 0;
-            while (iter < cfg.max_iter) {
+            while (iter < m_config.max_iter) {
                 const double zr = z.real();
                 const double zi = z.imag();
 
@@ -72,13 +84,13 @@ Bmp iheay::fractal::render_complex_fractal(
                     break;
                 }
 
-                z = iterate(z, c);
+                z = m_iterate(z, c);
                 ++iter;
             }
 
             double mu = iter;
 
-            if (iter < cfg.max_iter) {
+            if (iter < m_config.max_iter) {
                 double zr = z.real();
                 double zi = z.imag();
                 double log_zn = std::log(zr * zr + zi * zi) / 2.0;
@@ -99,7 +111,7 @@ Bmp iheay::fractal::render_complex_fractal(
                 return {r, g, b};
             };
 
-            image.try_set_pixel(x, y, color_from_mu(iter, cfg.max_iter));
+            image.try_set_pixel(x, y, color_from_mu(iter, m_config.max_iter));
         }
     }
 

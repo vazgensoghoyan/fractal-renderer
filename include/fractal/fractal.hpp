@@ -1,35 +1,38 @@
 #pragma once // fractal/fractal.hpp
 
-#include <functional>
+#include "fractal/fractal_structures.hpp"
 #include "math/complex.hpp"
 #include "bmp/bmp.hpp"
 #include "rasterizer/interface_pixeled.hpp"
 
 namespace iheay::fractal {
 
-struct FractalConfig {
-    int max_iter = 300;
-    double escape_radius = 2.0;
+class FractalRenderer {
+public:
+
+    // make private
+    FractalRenderer(
+        int width, int height,
+        Viewport viewport,
+        IterationFunc iterate,
+        InitialFunc init,
+        ParamFunc param,
+        FractalConfig config
+    );
+
+    // TODO
+
+    iheay::bmp::Bmp render();
+
+    friend class FractalRendererBuilder;
+
+private:
+    int m_width, m_height;
+    Viewport m_viewport;
+    IterationFunc m_iterate;
+    InitialFunc m_init;
+    ParamFunc m_param;
+    FractalConfig m_config;
 };
-
-struct Viewport {
-    math::Complex min;
-    math::Complex max;
-};
-
-using IterationFunc = std::function<math::Complex(const math::Complex& z, const math::Complex& c)>;
-
-using InitialFunc = std::function<math::Complex(const math::Complex& pixel)>;
-
-using ParamFunc = std::function<math::Complex(const math::Complex& pixel)>;
-
-iheay::bmp::Bmp render_complex_fractal(
-    int width, int height,
-    const Viewport& view,
-    IterationFunc iterate,
-    InitialFunc initial,
-    ParamFunc parameter,
-    const FractalConfig& cfg
-);
 
 } // namespace iheay::fractal

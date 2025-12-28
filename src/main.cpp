@@ -46,7 +46,7 @@ void render_animation() {
 
         LOG_INFO("Rendering frame %d / %d", i, FRAMES);
 
-        auto image = render_complex_fractal(
+        fractal::FractalRenderer renderer = fractal::FractalRenderer(
             WIDTH, HEIGHT,
             view,
             [](auto& z, auto& c) { return z * z + c; },
@@ -54,6 +54,8 @@ void render_animation() {
             [](auto& pixel) { return pixel; },
             key.config
         );
+
+        bmp::Bmp image = renderer.render();
 
         std::string filename = std::format("frames/frame_{:04}.bmp", i);
 
