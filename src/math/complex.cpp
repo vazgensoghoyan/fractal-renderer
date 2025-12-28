@@ -6,7 +6,7 @@ using namespace iheay::math;
 
 static const double PI = acos(-1.0);
 
-double normalize_arg(double arg) { // to [0, 2pi)
+static double normalize_arg(double arg) { // to [0, 2pi)
     double res = std::fmod(arg, 2 * PI);
 
     if (res < 0) res += 2 * PI;
@@ -17,6 +17,8 @@ double normalize_arg(double arg) { // to [0, 2pi)
 // empty public constructor
 
 Complex::Complex() : m_real(0), m_imag(0) { }
+
+Complex::Complex(double real) : m_real(real), m_imag(0) { }
 
 // private constructor
 
@@ -46,14 +48,6 @@ Complex Complex::Trigonometric(double modulus, double arg) {
 }
 
 // properties
-
-double Complex::real() const {
-    return m_real;
-}
-
-double Complex::imag() const {
-    return m_imag;
-}
 
 double Complex::modulus() const {
     return std::hypot(m_real, m_imag);
@@ -108,8 +102,38 @@ Complex Complex::operator/(const Complex& other) const {
 
 // oper with double
 
+Complex Complex::operator*(double scalar) const {
+    return Algebraic(m_real * scalar, m_imag * scalar);
+}
+
 Complex Complex::operator/(double scalar) const {
     return Algebraic(m_real / scalar, m_imag / scalar);
+}
+
+Complex iheay::math::operator*(double scalar, Complex complex) {
+    return Complex::Algebraic(scalar * complex.real(), scalar * complex.imag());
+}
+
+// += like operators
+
+Complex& Complex::operator+=(const Complex& o) {
+    *this = *this + o;
+    return *this;
+}
+
+Complex& Complex::operator-=(const Complex& o) {
+    *this = *this - o;
+    return *this;
+}
+
+Complex& Complex::operator*=(const Complex& o) {
+    *this = *this * o;
+    return *this;
+}
+
+Complex& Complex::operator/=(const Complex& o) {
+    *this = *this / o;
+    return *this;
 }
 
 // methods
@@ -134,7 +158,7 @@ Complex Complex::pow(int n) const { // simple recursive binary pow
     return Trigonometric(new_modulus, new_arg);
 }
 
-// to string
+// printing
 
 std::ostream& operator<<(std::ostream& os, const Complex& c) {
     return os << std::format("{} + i * {}", c.real(), c.imag());

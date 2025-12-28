@@ -14,23 +14,7 @@ Quaternion::Quaternion(Complex z0, Complex z1)
     , m_z1(z1)
 { }
 
-// property
-
-double Quaternion::a() const {
-    return m_z0.real();
-}
-
-double Quaternion::b() const {
-    return m_z0.imag();
-}
-
-double Quaternion::c() const {
-    return m_z1.real();
-}
-
-double Quaternion::d() const {
-    return m_z1.imag();
-}
+// non-constexpr properties
 
 Complex Quaternion::z0() const {
     return m_z0;
@@ -73,6 +57,24 @@ Quaternion Quaternion::operator*(const Quaternion& other) const {
 
     return Quaternion(std::move(new_z0), std::move(new_z1));
 }
+
+// += like operators
+// TODO
+
+/*Quaternion Quaternion::operator+=(const Quaternion& other) const {
+    *this = *this + other;
+    return *this;
+}
+
+Quaternion Quaternion::operator-=(const Quaternion& other) const {
+    *this = *this - other;
+    return *this;
+}
+
+Quaternion Quaternion::operator*=(const Quaternion& other) const {
+    *this = *this * other;
+    return *this;
+}*/
 
 // methods
 
@@ -126,14 +128,14 @@ Vec3 Quaternion::rotate_z(const Vec3& point, double phi) {
     return rotate_point(point, {0, 0, 1}, phi);
 }
 
-// to string
+// printing
 
-std::string Quaternion::to_string() const {
-    return std::format(
+std::ostream& operator<<(std::ostream& os, const Quaternion& q) {
+    return os << std::format(
         "{} + i * {} + j * {} + k * {}",
-        m_z0.real(),
-        m_z0.imag(),
-        m_z1.real(),
-        m_z1.imag()
+        q.a(),
+        q.b(),
+        q.c(),
+        q.d()
     );
 }
