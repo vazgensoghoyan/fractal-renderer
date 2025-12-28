@@ -8,9 +8,17 @@
 #include <cstdarg>
 #include <vector>
 
-#define LOG_INFO(fmt, ...) iheay::utils::Logger::info(fmt, ##__VA_ARGS__)
-#define LOG_DEBUG(fmt, ...) iheay::utils::Logger::debug(fmt, ##__VA_ARGS__)
-#define LOG_ERROR(fmt, ...) iheay::utils::Logger::error(fmt, ##__VA_ARGS__)
+#define LOGGING_ENABLED
+
+#ifdef LOGGING_ENABLED
+    #define LOG_INFO(fmt, ...)  iheay::utils::Logger::info(fmt, ##__VA_ARGS__)
+    #define LOG_DEBUG(fmt, ...) iheay::utils::Logger::debug(fmt, ##__VA_ARGS__)
+    #define LOG_ERROR(fmt, ...) iheay::utils::Logger::error(fmt, ##__VA_ARGS__)
+#else
+    #define LOG_INFO(fmt, ...)  ((void)0)
+    #define LOG_DEBUG(fmt, ...) ((void)0)
+    #define LOG_ERROR(fmt, ...) ((void)0)
+#endif
 
 namespace iheay::utils {
 

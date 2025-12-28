@@ -76,18 +76,30 @@ Bmp iheay::fractal::render_complex_fractal(
                 ++iter;
             }
 
-            auto color_from_iter = [](int iter, int max_iter) -> iheay::bmp::Pixel {
-                if (iter == max_iter)
+            double mu = iter;
+
+            if (iter < cfg.max_iter) {
+                double zr = z.real();
+                double zi = z.imag();
+                double log_zn = std::log(zr * zr + zi * zi) / 2.0;
+                double nu = std::log(log_zn / std::log(2.0)) / std::log(2.0);
+                mu = iter + 1 - nu;
+            }
+
+            auto color_from_mu = [](double mu, int max_iter) -> Pixel {
+                if (mu >= max_iter)
                     return {0, 0, 0};
 
-                uint8_t r = static_cast<uint8_t>(9 * (1 - iter / (double)max_iter) * pow(iter / (double)max_iter, 3) * 255);
-                uint8_t g = static_cast<uint8_t>(15 * pow(1 - iter / (double)max_iter, 2) * pow(iter / (double)max_iter, 2) * 255);
-                uint8_t b = static_cast<uint8_t>(8.5 * pow(1 - iter / (double)max_iter, 3) * (iter / (double)max_iter) * 255);
+                double t = mu / max_iter;
 
-                return {r, g, b}; // поменял местами, выглядит классно (по факту b, g, r)
+                uint8_t r = static_cast<uint8_t>(9 * (1 - t) * t * t * t * 255);
+                uint8_t g = static_cast<uint8_t>(15 * (1 - t) * (1 - t) * t * t * 255);
+                uint8_t b = static_cast<uint8_t>(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+                return {r, g, b};
             };
 
-            image.try_set_pixel(x, y, color_from_iter(iter, cfg.max_iter));
+            image.try_set_pixel(x, y, color_from_mu(iter, cfg.max_iter));
         }
     }
 

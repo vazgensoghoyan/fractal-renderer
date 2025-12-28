@@ -30,22 +30,20 @@ Bmp fractal::draw_mandelbrot(int width, int height) {
 
     volatile double time_end = omp_get_wtime();
 
-    LOG_INFO("Rendering Mandelbrot finished in %.2f seconds", time_end - time_start);
+    LOG_INFO("Rendering Mandelbrot finished in %.3f seconds", time_end - time_start);
 
     return img;
 }
 
-Bmp fractal::draw_julia(int width, int height) {
+Bmp fractal::draw_julia(int width, int height, Complex k) {
     LOG_INFO("Rendering Julia started");
 
-     volatile double time_start = omp_get_wtime();
+    volatile double time_start = omp_get_wtime();
 
     fractal::Viewport view{
         Complex::Algebraic(-2.0, -1.5),
         Complex::Algebraic(1.0, 1.5)
     };
-
-    Complex k = Complex::Algebraic(-0.8, 0.156);
 
     bmp::Bmp img = fractal::render_complex_fractal(
         width, height,
@@ -58,7 +56,7 @@ Bmp fractal::draw_julia(int width, int height) {
 
     volatile double time_end = omp_get_wtime();
 
-    LOG_INFO("Rendering Julia finished in %.2f seconds", time_end - time_start);
+    LOG_INFO("Rendering Julia finished in %.3f seconds", time_end - time_start);
 
     return img;
 }
