@@ -1,6 +1,6 @@
 #pragma once // fractal/fractal_camera.hpp
 
-#include "fractal/fractal.hpp"
+#include "fractal/fractal_renderer.hpp"
 #include "math/complex.hpp"
 
 namespace iheay::fractal {

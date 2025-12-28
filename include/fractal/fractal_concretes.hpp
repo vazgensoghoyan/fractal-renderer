@@ -1,4 +1,4 @@
-#pragma once // fractal/concrete_fractals.hpp
+#pragma once // fractal/fractal_concretes.hpp
 
 #include "bmp/bmp.hpp"
 #include "math/complex.hpp"

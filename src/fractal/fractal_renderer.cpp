@@ -1,4 +1,4 @@
-#include "fractal/fractal.hpp"
+#include "fractal/fractal_renderer.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 
@@ -108,7 +108,7 @@ Bmp FractalRenderer::render() {
                 uint8_t g = static_cast<uint8_t>(15 * (1 - t) * (1 - t) * t * t * 255);
                 uint8_t b = static_cast<uint8_t>(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
 
-                return {r, g, b};
+                return {b, g, r};
             };
 
             image.try_set_pixel(x, y, color_from_mu(iter, m_config.max_iter));

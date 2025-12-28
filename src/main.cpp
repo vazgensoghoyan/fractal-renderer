@@ -1,8 +1,8 @@
 #include "bmp/bmp.hpp"
 #include "bmp/bmp_io.hpp"
 
-#include "fractal/fractal.hpp"
-#include "fractal/concrete_fractals.hpp"
+#include "fractal/fractal_renderer.hpp"
+#include "fractal/fractal_concretes.hpp"
 #include "fractal/fractal_camera.hpp"
 #include "fractal/fractal_animation.hpp"
 
@@ -70,7 +70,7 @@ void render_animation() {
 int main() {
     try {
         
-        bmp::Bmp image = fractal::draw_julia(WIDTH, WIDTH, -0.2);
+        bmp::Bmp image = fractal::draw_julia(WIDTH, WIDTH, 0);
         bmp::BmpIO::save(image, "julia_set_0.bmp");
 
     } catch (const std::exception& e) {
