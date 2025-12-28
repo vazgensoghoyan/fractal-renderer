@@ -111,7 +111,7 @@ Bmp FractalRenderer::render() {
                 return {b, g, r};
             };
 
-            image.try_set_pixel(x, y, color_from_mu(iter, m_config.max_iter));
+            image.try_set_pixel(x, y, color_from_mu(mu, m_config.max_iter));
         }
     }
 

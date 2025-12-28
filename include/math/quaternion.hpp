@@ -15,8 +15,8 @@ public:
     constexpr double c() const { return m_z1.real(); }
     constexpr double d() const { return m_z1.imag(); }
 
-    Complex z0() const;
-    Complex z1() const;
+    const Complex& z0() const;
+    const Complex& z1() const;
 
     double modulus() const;
 

@@ -16,11 +16,11 @@ Quaternion::Quaternion(Complex z0, Complex z1)
 
 // non-constexpr properties
 
-Complex Quaternion::z0() const {
+const Complex& Quaternion::z0() const {
     return m_z0;
 }
 
-Complex Quaternion::z1() const {
+const Complex& Quaternion::z1() const {
     return m_z1;
 }
 
