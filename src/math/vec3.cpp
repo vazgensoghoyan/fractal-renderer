@@ -19,15 +19,15 @@ Vec3 Vec3::normalized() const {
     return *this / len;
 }
 
-double Vec3::dot(const Vec3& o) const { 
-    return m_x * o.m_x + m_y * o.m_y + m_z * o.m_z; 
+double Vec3::dot(const Vec3& v1, const Vec3& v2) { 
+    return v1.m_x * v2.m_x + v1.m_y * v2.m_y + v1.m_z * v2.m_z; 
 }
 
-Vec3 Vec3::cross(const Vec3& o) const {
+Vec3 Vec3::cross(const Vec3& v1, const Vec3& v2) {
     return Vec3(
-        m_y * o.m_z - m_z * o.m_y,
-        m_z * o.m_x - m_x * o.m_z,
-        m_x * o.m_y - m_y * o.m_x
+        v1.m_y * v2.m_z - v1.m_z * v2.m_y,
+        v1.m_z * v2.m_x - v1.m_x * v2.m_z,
+        v1.m_x * v2.m_y - v1.m_y * v2.m_x
     );
 }
 

@@ -31,8 +31,8 @@ public:
     Vec3& operator*=(double scalar) { m_x *= scalar; m_y *= scalar; m_z *= scalar; return *this; }
     Vec3& operator/=(double scalar) { m_x /= scalar; m_y /= scalar; m_z /= scalar; return *this; }
 
-    double dot(const Vec3& o) const;
-    Vec3 cross(const Vec3& o) const;
+    static double dot(const Vec3& v1, const Vec3& v2);
+    static Vec3 cross(const Vec3& v1, const Vec3& v2);
 
 private:
     double m_x, m_y, m_z;
