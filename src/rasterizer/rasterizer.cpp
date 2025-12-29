@@ -3,7 +3,7 @@
 
 using namespace iheay::bmp;
 
-void iheay::raster::draw_line_dda(IPixeled& image, int x0, int y0, int x1, int y1, Pixel color) {
+void iheay::raster::draw_line_dda(IPixeled& image, int x0, int y0, int x1, int y1, BgrPixel color) {
     int dx = x1 - x0;
     int dy = y1 - y0;
 
@@ -26,7 +26,7 @@ void iheay::raster::draw_line_dda(IPixeled& image, int x0, int y0, int x1, int y
     }
 }
 
-void iheay::raster::draw_line_bresenham(IPixeled& image, int x0, int y0, int x1, int y1, Pixel color) {
+void iheay::raster::draw_line_bresenham(IPixeled& image, int x0, int y0, int x1, int y1, BgrPixel color) {
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
 
@@ -46,7 +46,7 @@ void iheay::raster::draw_line_bresenham(IPixeled& image, int x0, int y0, int x1,
     }
 }
 
-void iheay::raster::fill_background(IPixeled& image, iheay::bmp::Pixel color) {
+void iheay::raster::fill_background(IPixeled& image, iheay::bmp::BgrPixel color) {
     for (int y = 0; y < image.height(); ++y)
         for (int x = 0; x < image.width(); ++x)
             image.set_pixel(x, y, color);

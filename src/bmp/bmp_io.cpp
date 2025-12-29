@@ -60,7 +60,7 @@ Bmp BmpIO::load(const std::string& path) {
         std::memcpy(
             &bmp.m_pixels[y * width],
             row.data(),
-            width * sizeof(Pixel)
+            width * sizeof(BgrPixel)
         );
     }
 
@@ -106,7 +106,7 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
         std::memcpy(
             row.data(),
             &bmp.m_pixels[y * bmp.m_width],
-            bmp.m_width * sizeof(Pixel)
+            bmp.m_width * sizeof(BgrPixel)
         );
         file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }

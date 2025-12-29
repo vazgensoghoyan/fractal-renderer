@@ -98,7 +98,7 @@ Bmp FractalRenderer::render() {
                 mu = iter + 1 - nu;
             }
 
-            auto color_from_mu = [](double mu, int max_iter) -> Pixel {
+            auto color_from_mu = [](double mu, int max_iter) -> BgrPixel {
                 if (mu >= max_iter)
                     return {0, 0, 0};
 

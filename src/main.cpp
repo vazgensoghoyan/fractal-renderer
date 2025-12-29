@@ -22,7 +22,7 @@ using namespace iheay::math;
 using namespace iheay::fractal;
 using namespace iheay::ray_tracing;
 
-Pixel vec3_to_pixel(const Vec3& vec) {
+BgrPixel vec3_to_pixel(const Vec3& vec) {
     if (vec.x() < 0 || vec.y() < 0 || vec.z() < 0)
         throw std::invalid_argument("Can't transform from math::Vec3 to bmp::Pixel");
 
@@ -35,7 +35,7 @@ Pixel vec3_to_pixel(const Vec3& vec) {
     return { b, g, r };
 }
 
-Pixel ray_color(const Ray& ray) {
+BgrPixel ray_color(const Ray& ray) {
     objects::Sphere sphere( {0,0,-1}, 0.5 );
     std::optional<HitRecord> rec = sphere.hit(ray, 0, 100000000);
 

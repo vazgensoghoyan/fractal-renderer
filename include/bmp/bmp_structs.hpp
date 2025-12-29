@@ -28,7 +28,7 @@ struct BmpInfoHeader {
     uint32_t colors_important;
 };
 
-struct Pixel {
+struct BgrPixel {
     uint8_t b, g, r;
 };
 
