@@ -4,8 +4,8 @@
 #include <cmath>
 #include <stdexcept>
 #include <ostream>
+#include <numbers>
 #include <format>
-#include <compare>
 
 namespace iheay::math {
 
@@ -77,13 +77,11 @@ public:
         double theta = arg() / n;
 
         for (int k = 0; k < n; ++k) {
-            roots.push_back(Trigonometric(root_modulus, theta + 2 * M_PI * k / n));
+            roots.push_back(Trigonometric(root_modulus, theta + 2 * std::numbers::pi * k / n));
         }
 
         return roots;
     }
-
-    [[nodiscard]] constexpr auto operator<=>(const Complex&) const = default;
     
     friend std::ostream& operator<<(std::ostream& os, const Complex& c) {
         return os << std::format("{} + i*{}", c.real(), c.imag());
@@ -91,7 +89,7 @@ public:
 
 private:
     static double normalize_arg(double arg) noexcept {
-        constexpr double TWO_PI = 2.0 * M_PI;
+        constexpr double TWO_PI = 2.0 * std::numbers::pi;
         double res = std::fmod(arg, TWO_PI);
         if (res < 0) res += TWO_PI;
         return res;
