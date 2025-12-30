@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cmath>
+#include <numbers>
 #include "math/vec3.hpp"
 #include "math/complex.hpp"
 #include "math/quaternion.hpp"
@@ -61,33 +62,33 @@ TEST(QuaternionTest, ComplexCombination) {
 
 TEST(QuaternionRotationTest, RotateAroundX) {
     Vec3 point(0, 1, 0);
-    Vec3 rotated = Quaternion::rotate_x(point, M_PI / 2);
+    Vec3 rotated = Quaternion::rotate_x(point, std::numbers::pi / 2);
     EXPECT_TRUE(rotated == Vec3(0, 0, 1));
 }
 
 TEST(QuaternionRotationTest, RotateAroundY) {
     Vec3 point(1, 0, 0);
-    Vec3 rotated = Quaternion::rotate_y(point, M_PI / 2);
+    Vec3 rotated = Quaternion::rotate_y(point, std::numbers::pi / 2);
     EXPECT_TRUE(rotated == Vec3(0, 0, -1));
 }
 
 TEST(QuaternionRotationTest, RotateAroundZ) {
     Vec3 point(1, 0, 0);
-    Vec3 rotated = Quaternion::rotate_z(point, M_PI / 2);
+    Vec3 rotated = Quaternion::rotate_z(point, std::numbers::pi / 2);
     EXPECT_TRUE(rotated == Vec3(0, 1, 0));
 }
 
 TEST(QuaternionRotationTest, RotateArbitraryAxis) {
     Vec3 point(1, 0, 0);
     Vec3 axis(0, 1, 0);
-    Vec3 rotated = Quaternion::rotate_point(point, axis, M_PI);
+    Vec3 rotated = Quaternion::rotate_point(point, axis, std::numbers::pi);
     EXPECT_TRUE(rotated == Vec3(-1, 0, 0));
 }
 
 TEST(QuaternionRotationTest, RotateZeroVector) {
     Vec3 point(0, 0, 0);
     Vec3 axis(1, 0, 0);
-    Vec3 rotated = Quaternion::rotate_point(point, axis, M_PI / 3);
+    Vec3 rotated = Quaternion::rotate_point(point, axis, std::numbers::pi / 3);
     EXPECT_TRUE(rotated == Vec3(0, 0, 0));
 }
 
@@ -100,10 +101,72 @@ TEST(QuaternionRotationTest, RotateIdentity) {
 TEST(QuaternionRotationTest, RotateBackAndForth) {
     Vec3 point(1, 1, 1);
     Vec3 axis(1, 0, 0);
-    double angle = M_PI / 3;
+    double angle = std::numbers::pi / 3;
 
     Vec3 rotated = Quaternion::rotate_point(point, axis, angle);
     Vec3 rotated_back = Quaternion::rotate_point(rotated, axis, -angle);
 
     EXPECT_TRUE(rotated_back == Vec3(1, 1, 1));
+}
+
+TEST(QuaternionTest, InverseOfZeroThrows) {
+    Quaternion q0(0, 0, 0, 0);
+    EXPECT_THROW((void)q0.inverse(), std::runtime_error);
+}
+
+TEST(QuaternionTest, PowZeroAndNegative) {
+    Quaternion q(Complex(1, 1), Complex(0, 1));
+
+    // pow 0 должно дать единичный кватернион
+    Quaternion p0 = q.pow(0);
+    EXPECT_TRUE(p0 == Quaternion(1, 0, 0, 0));
+
+    // pow отрицательная степень
+    Quaternion p_neg = q.pow(-1);
+    Quaternion expected = q.inverse();
+    EXPECT_TRUE(p_neg == expected);
+}
+
+TEST(QuaternionTest, CompoundAssignmentOperators) {
+    Quaternion q1(Complex(1, 2), Complex(3, -1));
+    Quaternion q2(Complex(-2, 4), Complex(0, 5));
+
+    Quaternion temp = q1;
+    temp += q2;
+    EXPECT_TRUE(temp == q1 + q2);
+
+    temp = q1;
+    temp -= q2;
+    EXPECT_TRUE(temp == q1 - q2);
+
+    temp = q1;
+    temp *= q2;
+    EXPECT_TRUE(temp == q1 * q2);
+}
+
+TEST(QuaternionTest, ConstructorWithVec3) {
+    Vec3 v(1, 2, 3);
+    Quaternion q(4.0, v);
+
+    EXPECT_DOUBLE_EQ(q.a(), 4.0);
+    EXPECT_DOUBLE_EQ(q.b(), v.x());
+    EXPECT_DOUBLE_EQ(q.c(), v.y());
+    EXPECT_DOUBLE_EQ(q.d(), v.z());
+}
+
+TEST(QuaternionRotationTest, RotateAroundZeroAxisThrows) {
+    Vec3 point(1, 2, 3);
+    Vec3 zero_axis(0, 0, 0);
+    EXPECT_THROW(Quaternion::rotate_point(point, zero_axis, 1.0), std::runtime_error);
+}
+
+TEST(QuaternionRotationTest, RotateBackAndForthArbitraryAxis) {
+    Vec3 point(3, 5, 7);
+    Vec3 axis(1, 1, 0);
+    double angle = std::numbers::pi / 4;
+
+    Vec3 rotated = Quaternion::rotate_point(point, axis, angle);
+    Vec3 rotated_back = Quaternion::rotate_point(rotated, axis, -angle);
+
+    EXPECT_TRUE(rotated_back == point);
 }
