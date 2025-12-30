@@ -23,8 +23,11 @@ Bmp BmpIO::load(const std::string& path) {
     BmpFileHeader fh{};
     BmpInfoHeader ih{};
 
-    file.read(reinterpret_cast<char*>(&fh), sizeof(fh));
-    file.read(reinterpret_cast<char*>(&ih), sizeof(ih));
+    if (!file.read(reinterpret_cast<char*>(&fh), sizeof(fh)))
+        throw std::runtime_error("Unexpected EOF on file " + path);
+
+    if (!file.read(reinterpret_cast<char*>(&ih), sizeof(ih)))
+        throw std::runtime_error("Unexpected EOF on file " + path);
 
     if (fh.signature[0] != 'B' || fh.signature[1] != 'M')
         throw std::runtime_error("Not a BMP file");
@@ -39,11 +42,11 @@ Bmp BmpIO::load(const std::string& path) {
         throw std::runtime_error("Compressed BMP not supported");
 
     const bool bottom_up = ih.height > 0;
-    const int width  = ih.width;
+    const int width = ih.width;
     const int height = std::abs(ih.height);
 
     Bmp bmp;
-    bmp.m_width  = width;
+    bmp.m_width = width;
     bmp.m_height = height;
     bmp.m_pixels.resize(width * height);
 
@@ -55,7 +58,8 @@ Bmp BmpIO::load(const std::string& path) {
     for (int row_index = 0; row_index < height; ++row_index) {
         const int y = bottom_up ? (height - 1 - row_index) : row_index;
 
-        file.read(reinterpret_cast<char*>(row.data()), row_size);
+        if (!file.read(reinterpret_cast<char*>(row.data()), row_size))
+            throw std::runtime_error("Unexpected EOF on file " + path);
 
         std::memcpy(
             &bmp.m_pixels[y * width],
@@ -64,7 +68,7 @@ Bmp BmpIO::load(const std::string& path) {
         );
     }
 
-    LOG_INFO("Loaded BMP image: %s (%dx%d)", path.c_str(), width, height);
+    LOG_INFO("Loaded BMP image: {} ({}x{})", path.c_str(), width, height);
 
     return bmp;
 }
@@ -111,6 +115,6 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
         file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }
 
-    LOG_INFO("Saved BMP image: %s (%dx%d)", path.c_str(), bmp.m_width, bmp.m_height);
+    LOG_INFO("Saved BMP image: {} ({}x{})", path.c_str(), bmp.m_width, bmp.m_height);
 }
 

@@ -11,7 +11,10 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     : m_width(width)
     , m_height(height)
     , m_pixels(pixels)
-{ }
+{ 
+    if (width <= 0 || height <= 0)
+        throw std::invalid_argument("Given width or height < 0 for bmp");
+}
 
 // little public fabric
 

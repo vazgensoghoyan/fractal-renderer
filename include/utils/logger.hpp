@@ -2,11 +2,9 @@
 
 #include <iostream>
 #include <mutex>
-#include <string>
 #include <chrono>
-#include <iomanip>
-#include <cstdarg>
-#include <vector>
+#include <string>
+#include <format>
 
 #define LOGGING_ENABLED
 
@@ -22,57 +20,56 @@
 
 namespace iheay::utils {
 
+enum class LogLevel { Info, Debug, Error };
+
 class Logger {
 public:
     Logger() = delete;
 
-    static void info(const char* fmt, ...) {
-        va_list args;
-        va_start(args, fmt);
-        log("INFO", "\033[32m", fmt, args); // зеленый
-        va_end(args);
+    template<typename... Args>
+    static void info(std::format_string<Args...> fmt, Args&&... args) {
+        log(LogLevel::Info, fmt, std::forward<Args>(args)...);
     }
 
-    static void debug(const char* fmt, ...) {
-        va_list args;
-        va_start(args, fmt);
-        log("DEBUG", "\033[36m", fmt, args); // голубой
-        va_end(args);
+    template<typename... Args>
+    static void debug(std::format_string<Args...> fmt, Args&&... args) {
+        log(LogLevel::Debug, fmt, std::forward<Args>(args)...);
     }
 
-    static void error(const char* fmt, ...) {
-        va_list args;
-        va_start(args, fmt);
-        log("ERROR", "\033[31m", fmt, args); // красный
-        va_end(args);
+    template<typename... Args>
+    static void error(std::format_string<Args...> fmt, Args&&... args) {
+        log(LogLevel::Error, fmt, std::forward<Args>(args)...);
     }
 
 private:
     static inline std::mutex m_mutex;
 
-    static void log(const std::string& tag, const char* color, const char* fmt, va_list args) {
-        va_list args_copy;
-        va_copy(args_copy, args);
-        int size = std::vsnprintf(nullptr, 0, fmt, args_copy);
-        va_end(args_copy);
+    template<typename... Args>
+    static void log(LogLevel level, std::format_string<Args...> fmt, Args&&... args) {
+        const char* color = "\033[0m";
+        std::string tag;
 
-        std::vector<char> buffer(size + 1);
-        std::vsnprintf(buffer.data(), buffer.size(), fmt, args);
+        switch(level) {
+            case LogLevel::Info: color = "\033[32m"; tag = "INFO"; break;    // green
+            case LogLevel::Debug: color = "\033[36m"; tag = "DEBUG"; break;  // cyan
+            case LogLevel::Error: color = "\033[31m"; tag = "ERROR"; break;  // red
+        }
 
         auto now = std::chrono::system_clock::now();
         auto t_c = std::chrono::system_clock::to_time_t(now);
-        std::tm tm;
+        std::tm tm{};
 #if defined(_WIN32)
         localtime_s(&tm, &t_c);
 #else
         localtime_r(&t_c, &tm);
 #endif
 
+        std::string message = std::format(fmt, std::forward<Args>(args)...);
+
         std::lock_guard<std::mutex> lock(m_mutex);
         std::cout << std::put_time(&tm, "%Y-%m-%d %H:%M:%S")
-                << " " << color << "[" << tag << "]\033[0m "
-                << buffer.data()
-                << std::endl;
+                  << " " << color << "[" << tag << "]\033[0m "
+                  << message << std::endl;
     }
 };
 

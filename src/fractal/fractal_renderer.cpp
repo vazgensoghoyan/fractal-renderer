@@ -41,7 +41,7 @@ FractalRenderer::FractalRenderer(
 { }
 
 Bmp FractalRenderer::render() {
-    LOG_INFO("Starting fractal rendering: %dx%d, max_iter=%d, escape_radius=%.2f",
+    LOG_INFO("Starting fractal rendering: {}x{}, max_iter={}, escape_radius={:.2f}",
         m_width, m_height,
         m_config.max_iter, m_config.escape_radius
     );
@@ -117,7 +117,7 @@ Bmp FractalRenderer::render() {
 
     volatile double time_end = omp_get_wtime();
     
-    LOG_INFO("Fractal rendering completed in %.3f seconds", time_end - time_start);
+    LOG_INFO("Fractal rendering completed in {:.3f} seconds", time_end - time_start);
 
     return image;
 }

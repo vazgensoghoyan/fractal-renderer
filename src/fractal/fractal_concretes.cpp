@@ -32,7 +32,7 @@ Bmp fractal::draw_mandelbrot(int width, int height) {
 
     volatile double time_end = omp_get_wtime();
 
-    LOG_INFO("Rendering Mandelbrot finished in %.3f seconds", time_end - time_start);
+    LOG_INFO("Rendering Mandelbrot finished in {:.3f} seconds", time_end - time_start);
 
     return img;
 }
@@ -60,7 +60,7 @@ Bmp fractal::draw_julia(int width, int height, Complex k) {
 
     volatile double time_end = omp_get_wtime();
 
-    LOG_INFO("Rendering Julia finished in %.3f seconds", time_end - time_start);
+    LOG_INFO("Rendering Julia finished in {:.3f} seconds", time_end - time_start);
 
     return img;
 }
