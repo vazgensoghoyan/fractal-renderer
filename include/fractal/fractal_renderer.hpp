@@ -24,8 +24,6 @@ public:
 
     iheay::bmp::Bmp render();
 
-    friend class FractalRendererBuilder;
-
 private:
     int m_width, m_height;
     Viewport m_viewport;

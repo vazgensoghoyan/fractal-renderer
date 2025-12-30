@@ -2,44 +2,55 @@
 #include "bmp/io/bmp_io.hpp"
 #include "math/complex.hpp"
 #include "fractal/fractal_renderer.hpp"
+#include "fractal/abstract_fractal_renderer.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 
 using namespace iheay;
 using namespace iheay::bmp;
 using namespace iheay::math;
+using namespace iheay::fractal;
 
-Bmp draw_julia(int width, int height, Complex k = Complex::Algebraic(-0.8, 0.156)) {
-    LOG_INFO("Rendering Julia started");
+class MandelbrotRenderer : public AbstractFractalRenderer {
+public:
+    MandelbrotRenderer(
+        int width, int height, FractalConfig config, Viewport viewport,
+        Complex k = Complex::Algebraic(-0.8, 0.156)
+    ) {
+        m_width = width;
+        m_height = height;
+        m_config = config;
+        m_viewport = viewport;
+        m_k = k;
+    }
 
-    volatile double time_start = omp_get_wtime();
+private:
+    math::Complex initialize_pixel(const math::Complex& pixel) override {
+        return pixel;
+    }
 
-    fractal::Viewport view{
-        Complex::Algebraic(-2.0, -1.5),
-        Complex::Algebraic(1.0, 1.5)
-    };
+    math::Complex get_param(const math::Complex&) override {
+        return m_k;
+    }
 
-    fractal::FractalRenderer renderer = fractal::FractalRenderer(
-        width, height,
-        view,
-        [](auto& z, auto& c) { return z*z + c; },
-        [](auto& pixel) { return pixel; },
-        [&](auto&) { return k; },
-        {300, 2.0}
-    );
+    math::Complex iterate_pixel(math::Complex& z, const math::Complex& c) override {
+        return z * z + c;
+    }
 
-    bmp::Bmp img = renderer.render();
-
-    volatile double time_end = omp_get_wtime();
-
-    LOG_INFO("Rendering Julia finished in {:.3f} seconds", time_end - time_start);
-
-    return img;
-}
+private:
+    Complex m_k;
+};
 
 int main() {
 
-    Bmp image = draw_julia(3000, 3000);
+    auto renderer = MandelbrotRenderer(
+        3000, 3000,
+        {300, 2.0},
+        Viewport{Complex::Algebraic(-2.0, -1.5), Complex::Algebraic(1.0, 1.5)}
+    );
+
+    Bmp image = renderer.render();
+
     io::save(image, "julia_set.bmp");
 
     return 0;

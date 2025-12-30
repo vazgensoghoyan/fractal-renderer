@@ -19,14 +19,18 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
 }
 
 Bmp Bmp::empty(int width, int height) {
-    if ((int64_t)width * height > 1'000'000'000)
-        throw std::runtime_error("BMP too large");
 
     BgrPixel white_color{ 255, 255, 255 };
     return empty(width, height, white_color);
 }
 
 Bmp Bmp::empty(int width, int height, BgrPixel pixel) {
+    if (width < 0 || height < 0)
+        throw std::runtime_error("Given negative dimension for creating Bmp");
+
+    if ((int64_t)width * height > 1'000'000'000)
+        throw std::runtime_error("BMP too large");
+
     std::vector<BgrPixel> pixels(width * height, pixel);
     return Bmp(width, height, pixels);
 }
