@@ -7,7 +7,7 @@
 
 namespace iheay::bmp {
 
-class Bmp : public iheay::raster::IPixeled {
+class Bmp : public iheay::raster::IPixeled<BgrPixel> {
 public:
     static Bmp empty(int width, int height); // empty white image
     static Bmp empty(int width, int height, BgrPixel pixel); // empty image of given color
