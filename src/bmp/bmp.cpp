@@ -1,11 +1,10 @@
 #include "bmp/bmp.hpp"
+#include "utils/logger.hpp"
 #include <stdexcept>
 
 using namespace iheay::bmp;
 
 // default private constructor
-
-Bmp::Bmp() = default;
 
 Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     : m_width(width)
@@ -13,12 +12,18 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     , m_pixels(pixels)
 { 
     if (width <= 0 || height <= 0)
-        throw std::runtime_error("Given width or height < 0 for bmp");
+        throw std::runtime_error("Given width or height < 0 in Bmp constructor");
+
+    if (pixels.size() != (size_t)width * height)
+        throw std::runtime_error("Pixel buffer size mismatch in Bmp constructor");
 }
 
 // little public fabric
 
 Bmp Bmp::empty(int width, int height) {
+    if ((int64_t)width * height > 1'000'000'000)
+        std::runtime_error("BMP too large");
+
     BgrPixel white_color{ 255, 255, 255 };
     return empty(width, height, white_color);
 }
@@ -54,7 +59,7 @@ bool Bmp::try_set_pixel(int x, int y, BgrPixel pixel) {
     return true;
 }
 
-BgrPixel Bmp::get_pixel(int x, int y) const {
+const BgrPixel& Bmp::get_pixel(int x, int y) const {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
         throw std::runtime_error("Pixel out of bounds");
 

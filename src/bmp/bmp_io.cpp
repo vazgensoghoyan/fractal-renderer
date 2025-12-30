@@ -13,7 +13,7 @@ using namespace iheay::bmp;
 
 // local static util
 
-static constexpr size_t row_size_bytes(size_t width) noexcept {
+static constexpr int row_size_bytes(int width) noexcept {
     return ((width * 24 + 31) / 32) * 4;
 }
 
@@ -37,31 +37,41 @@ Bmp BmpIO::load(const std::string& path) {
     if (ih.header_size != 40 || ih.planes != 1 || ih.bits_per_pixel != 24 || ih.compression != 0)
         throw std::runtime_error("Unsupported BMP format: " + path);
 
+    if (ih.width <= 0)
+        throw std::runtime_error("Invalid BMP width");
+
     const bool bottom_up = ih.height > 0;
-    const size_t width = (size_t)ih.width;
-    const size_t height = (size_t)std::abs(ih.height);
+    const int width = ih.width;
+    const int height = std::abs(ih.height);
 
-    Bmp bmp;
-    bmp.m_width = (int)width;
-    bmp.m_height = (int)height;
-    bmp.m_pixels.resize(width * height);
+    if ((int64_t)width * height > 1'000'000'000)
+        std::runtime_error("BMP too large");
 
-    const size_t row_size = row_size_bytes(width);
-    std::vector<uint8_t> buffer(row_size * height, 0);
+    std::vector<BgrPixel> pixels_buffer(width * height);
+
+    const int row_size = row_size_bytes(width);
+    std::vector<uint8_t> row(row_size);
 
     file.seekg(fh.pixel_offset);
-    if (!file.read(reinterpret_cast<char*>(buffer.data()), buffer.size()))
-        throw std::runtime_error("Unexpected EOF reading pixel data: " + path);
+    if (!file)
+        throw std::runtime_error("Invalid pixel offset");
 
-    for (size_t row = 0; row < height; ++row) {
-        const size_t y = bottom_up ? (height - 1 - row) : row;
-        const uint8_t* row_ptr = buffer.data() + row * row_size;
-        std::span<const BgrPixel> pixels(reinterpret_cast<const BgrPixel*>(row_ptr), width);
-        std::copy_n(pixels.begin(), width, bmp.m_pixels.begin() + y * width);
+    for (int row_index = 0; row_index < height; ++row_index) {
+        const int y = bottom_up ? (height - 1 - row_index) : row_index;
+
+        if (!file.read(reinterpret_cast<char*>(row.data()), row_size))
+            throw std::runtime_error("Unexpected EOF on file " + path);
+
+        std::memcpy(
+            &pixels_buffer[y * width],
+            row.data(),
+            width * sizeof(BgrPixel)
+        );
     }
 
-    LOG_INFO("Loaded BMP image: {} ({}x{})", path.c_str(), width, height);
-    return bmp;
+    LOG_INFO("Loaded BMP image: {} ({}x{})", path, width, height);
+
+    return Bmp(width, height, pixels_buffer);
 }
 
 // image saving
@@ -70,9 +80,9 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
     std::ofstream file(path, std::ios::binary);
     if (!file) throw std::runtime_error("Cannot create file: " + path);
 
-    const size_t row_size = row_size_bytes(bmp.m_width);
-    const size_t image_size = row_size * bmp.m_height;
-    const size_t pixel_offset = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
+    const int row_size = row_size_bytes(bmp.m_width);
+    const int image_size = row_size * bmp.m_height;
+    const int pixel_offset = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
 
     BmpFileHeader fh{
         {'B','M'},
@@ -93,16 +103,15 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
     file.write(reinterpret_cast<const char*>(&fh), sizeof(fh));
     file.write(reinterpret_cast<const char*>(&ih), sizeof(ih));
 
-    std::vector<uint8_t> buffer(row_size * bmp.m_height, 0);
-
-    for (size_t row = 0; row < static_cast<size_t>(bmp.m_height); ++row) {
-        const size_t y = bmp.m_height - 1 - row; // bottom-up
-        uint8_t* row_ptr = buffer.data() + row * row_size;
-        std::span<BgrPixel> pixels(reinterpret_cast<BgrPixel*>(row_ptr), bmp.m_width);
-        std::copy_n(bmp.m_pixels.begin() + y * bmp.m_width, bmp.m_width, pixels.begin());
+    std::vector<uint8_t> row(row_size, 0);
+    for (int y = bmp.m_height - 1; y >= 0; --y) {
+        std::memcpy(
+            row.data(),
+            &bmp.m_pixels[y * bmp.m_width],
+            bmp.m_width * sizeof(BgrPixel)
+        );
+        file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }
 
-    file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-
-    LOG_INFO("Saved BMP image: {} ({}x{})", path.c_str(), bmp.m_width, bmp.m_height);
+    LOG_INFO("Saved BMP image: {} ({}x{})", path, bmp.m_width, bmp.m_height);
 }

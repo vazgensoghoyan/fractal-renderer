@@ -10,17 +10,19 @@
 
 #ifdef LOGGING_ENABLED
     #define LOG_INFO(fmt, ...)  iheay::utils::Logger::info(fmt, ##__VA_ARGS__)
+    #define LOG_WARN(fmt, ...)  iheay::utils::Logger::warn(fmt, ##__VA_ARGS__)
     #define LOG_DEBUG(fmt, ...) iheay::utils::Logger::debug(fmt, ##__VA_ARGS__)
     #define LOG_ERROR(fmt, ...) iheay::utils::Logger::error(fmt, ##__VA_ARGS__)
 #else
     #define LOG_INFO(fmt, ...)  ((void)0)
+    #define LOG_WARN(fmt, ...)  ((void)0)
     #define LOG_DEBUG(fmt, ...) ((void)0)
     #define LOG_ERROR(fmt, ...) ((void)0)
 #endif
 
 namespace iheay::utils {
 
-enum class LogLevel { Info, Debug, Error };
+enum class LogLevel { Info, Warn, Debug, Error };
 
 class Logger {
 public:
@@ -29,6 +31,11 @@ public:
     template<typename... Args>
     static void info(std::format_string<Args...> fmt, Args&&... args) {
         log(LogLevel::Info, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    static void warn(std::format_string<Args...> fmt, Args&&... args) {
+        log(LogLevel::Warn, fmt, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
@@ -51,6 +58,7 @@ private:
 
         switch(level) {
             case LogLevel::Info: color = "\033[32m"; tag = "INFO"; break;    // green
+            case LogLevel::Warn: color = "\033[33m"; tag = "WARN"; break;    // yellow
             case LogLevel::Debug: color = "\033[36m"; tag = "DEBUG"; break;  // cyan
             case LogLevel::Error: color = "\033[31m"; tag = "ERROR"; break;  // red
         }

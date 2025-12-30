@@ -24,7 +24,8 @@ FractalKeyframe iheay::fractal::interpolate(
     out.camera.center = lerp(a.camera.center, b.camera.center, t);
 
     //out.camera.scale = a.camera.scale * std::pow(b.camera.scale / a.camera.scale, t);
-    out.camera.scale = lerp(a.camera.scale, b.camera.scale, t);
+    out.camera.scale =
+        a.camera.scale * std::exp(t * std::log(b.camera.scale / a.camera.scale));
 
     int base_iter = 200;
     double iter_factor = 50.0;

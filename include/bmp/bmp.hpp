@@ -15,7 +15,7 @@ public:
     int width() const override;
     int height() const override;
 
-    BgrPixel get_pixel(int x, int y) const override;
+    const BgrPixel& get_pixel(int x, int y) const override;
 
     void set_pixel(int x, int y, BgrPixel pixel) override;
     bool try_set_pixel(int x, int y, BgrPixel pixel) override;
@@ -23,7 +23,7 @@ public:
 private:
     friend class BmpIO;
 
-    Bmp();
+    Bmp() = delete;
     Bmp(int width, int height, const std::vector<BgrPixel>& pixels);
 
 private:

@@ -8,7 +8,7 @@ Viewport iheay::fractal::make_viewport(
     int image_width,
     int image_height
 ) {
-    double aspect = static_cast<double>(image_height) / image_width;
+    double aspect = (double)image_height / image_width;
 
     double half_w = cam.scale;
     double half_h = cam.scale * aspect;
