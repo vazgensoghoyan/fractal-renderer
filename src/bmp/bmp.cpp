@@ -20,7 +20,7 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
 
 Bmp Bmp::empty(int width, int height) {
     if ((int64_t)width * height > 1'000'000'000)
-        std::runtime_error("BMP too large");
+        throw std::runtime_error("BMP too large");
 
     BgrPixel white_color{ 255, 255, 255 };
     return empty(width, height, white_color);

@@ -12,6 +12,7 @@ using namespace iheay::bmp;
 
 // local static util
 
+// each bmp row is padded to 4-byte alignment
 static constexpr int row_size_bytes(int width) noexcept {
     return ((width * 24 + 31) / 32) * 4;
 }
@@ -44,7 +45,7 @@ Bmp io::load(const std::string& path) {
     const int height = std::abs(ih.height);
 
     if ((int64_t)width * height > 1'000'000'000)
-        std::runtime_error("BMP too large");
+        throw std::runtime_error("BMP too large");
 
     std::vector<BgrPixel> pixels_buffer(width * height);
 
@@ -100,7 +101,10 @@ void io::save(const Bmp& bmp, const std::string& path) {
     ih.image_size     = (uint32_t)image_size;
 
     file.write(reinterpret_cast<const char*>(&fh), sizeof(fh));
+    if (!file) throw std::runtime_error("Failed writing BMP file header");
+
     file.write(reinterpret_cast<const char*>(&ih), sizeof(ih));
+    if (!file) throw std::runtime_error("Failed writing BMP info header");
 
     std::vector<uint8_t> row(row_size, 0);
     for (int y = bmp.height() - 1; y >= 0; --y) {
