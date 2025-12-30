@@ -1,5 +1,4 @@
-#include "bmp/bmp.hpp"
-#include "bmp/bmp_io.hpp"
+#include "bmp/io/bmp_io.hpp"
 #include "utils/logger.hpp"
 
 #include <fstream>
@@ -19,7 +18,7 @@ static constexpr int row_size_bytes(int width) noexcept {
 
 // image loading
 
-Bmp BmpIO::load(const std::string& path) {
+Bmp io::load(const std::string& path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) throw std::runtime_error("Cannot open file: " + path);
 
@@ -76,12 +75,12 @@ Bmp BmpIO::load(const std::string& path) {
 
 // image saving
 
-void BmpIO::save(const Bmp& bmp, const std::string& path) {
+void io::save(const Bmp& bmp, const std::string& path) {
     std::ofstream file(path, std::ios::binary);
     if (!file) throw std::runtime_error("Cannot create file: " + path);
 
-    const int row_size = row_size_bytes(bmp.m_width);
-    const int image_size = row_size * bmp.m_height;
+    const int row_size = row_size_bytes(bmp.width());
+    const int image_size = row_size * bmp.height();
     const int pixel_offset = sizeof(BmpFileHeader) + sizeof(BmpInfoHeader);
 
     BmpFileHeader fh{
@@ -93,8 +92,8 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
 
     BmpInfoHeader ih{};
     ih.header_size    = 40;
-    ih.width          = bmp.m_width;
-    ih.height         = bmp.m_height; // сохраняем bottom-up
+    ih.width          = bmp.width();
+    ih.height         = bmp.height(); // сохраняем bottom-up
     ih.planes         = 1;
     ih.bits_per_pixel = 24;
     ih.compression    = 0;
@@ -104,14 +103,14 @@ void BmpIO::save(const Bmp& bmp, const std::string& path) {
     file.write(reinterpret_cast<const char*>(&ih), sizeof(ih));
 
     std::vector<uint8_t> row(row_size, 0);
-    for (int y = bmp.m_height - 1; y >= 0; --y) {
+    for (int y = bmp.height() - 1; y >= 0; --y) {
         std::memcpy(
             row.data(),
-            &bmp.m_pixels[y * bmp.m_width],
-            bmp.m_width * sizeof(BgrPixel)
+            &bmp.pixels()[y * bmp.width()],
+            bmp.width() * sizeof(BgrPixel)
         );
         file.write(reinterpret_cast<const char*>(row.data()), row_size);
     }
 
-    LOG_INFO("Saved BMP image: {} ({}x{})", path, bmp.m_width, bmp.m_height);
+    LOG_INFO("Saved BMP image: {} ({}x{})", path, bmp.width(), bmp.height());
 }

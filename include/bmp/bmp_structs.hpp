@@ -4,6 +4,9 @@
 
 namespace iheay::bmp {
 
+// as I understand, works especially for x86
+// and have no garantee for other ISA-s
+
 #pragma pack(push, 1)
 
 struct BmpFileHeader {

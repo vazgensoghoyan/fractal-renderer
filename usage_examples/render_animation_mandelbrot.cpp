@@ -1,8 +1,8 @@
+#include "bmp/bmp.hpp"
+#include "bmp/io/bmp_io.hpp"
 #include "fractal/fractal_renderer.hpp"
 #include "fractal/fractal_animation.hpp"
 #include "fractal/fractal_camera.hpp"
-#include "bmp/bmp.hpp"
-#include "bmp/bmp_io.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 
@@ -53,7 +53,7 @@ void render_animation() {
 
         std::string filename = std::format("frames/frame_{:04}.bmp", i);
 
-        BmpIO::save(image, filename);
+        io::save(image, filename);
     }
 
     volatile double time_end = omp_get_wtime();

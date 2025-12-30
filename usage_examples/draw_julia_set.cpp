@@ -1,6 +1,7 @@
-#include "fractal/fractal_renderer.hpp"
-#include "bmp/bmp_io.hpp"
+#include "bmp/bmp.hpp"
+#include "bmp/io/bmp_io.hpp"
 #include "math/complex.hpp"
+#include "fractal/fractal_renderer.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 
@@ -39,7 +40,7 @@ Bmp draw_julia(int width, int height, Complex k = Complex::Algebraic(-0.8, 0.156
 int main() {
 
     Bmp image = draw_julia(3000, 3000);
-    BmpIO::save(image, "julia_set.bmp");
+    io::save(image, "julia_set.bmp");
 
     return 0;
 }

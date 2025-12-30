@@ -4,7 +4,7 @@
 
 using namespace iheay::bmp;
 
-// default private constructor
+// public constructor and little fabric
 
 Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     : m_width(width)
@@ -17,8 +17,6 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     if (pixels.size() != (size_t)width * height)
         throw std::runtime_error("Pixel buffer size mismatch in Bmp constructor");
 }
-
-// little public fabric
 
 Bmp Bmp::empty(int width, int height) {
     if ((int64_t)width * height > 1'000'000'000)
@@ -41,6 +39,10 @@ int Bmp::width() const {
 
 int Bmp::height() const {
     return m_height;
+}
+
+const std::vector<BgrPixel>& Bmp::pixels() const {
+    return m_pixels;
 }
 
 // pixel property

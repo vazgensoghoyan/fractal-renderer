@@ -1,5 +1,5 @@
 #include "bmp/bmp.hpp"
-#include "bmp/bmp_io.hpp"
+#include "bmp/io/bmp_io.hpp"
 
 #include "fractal/fractal_renderer.hpp"
 #include "fractal/fractal_camera.hpp"
@@ -87,7 +87,7 @@ int main() {
             }
         }
 
-        BmpIO::save(image, "../ray_tracing.bmp");
+        io::save(image, "../ray_tracing.bmp");
 
     } catch (const std::exception& e) {
 

@@ -1,6 +1,7 @@
-#include "fractal/fractal_renderer.hpp"
-#include "bmp/bmp_io.hpp"
+#include "bmp/bmp.hpp"
+#include "bmp/io/bmp_io.hpp"
 #include "math/complex.hpp"
+#include "fractal/fractal_renderer.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 
@@ -39,7 +40,7 @@ Bmp draw_mandelbrot(int width, int height) {
 int main() {
 
     Bmp image = draw_mandelbrot(3000, 3000);
-    BmpIO::save(image, "mandelbrot_set.bmp");
+    io::save(image, "mandelbrot_set.bmp");
 
     return 0;
 }
