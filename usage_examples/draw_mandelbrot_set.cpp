@@ -1,4 +1,3 @@
-#include "fractal/fractal_concretes.hpp"
 #include "fractal/fractal_renderer.hpp"
 #include "bmp/bmp_io.hpp"
 #include "math/complex.hpp"
@@ -9,7 +8,7 @@ using namespace iheay;
 using namespace iheay::bmp;
 using namespace iheay::math;
 
-Bmp fractal::draw_mandelbrot(int width, int height) {
+Bmp draw_mandelbrot(int width, int height) {
     LOG_INFO("Rendering Mandelbrot started");
 
     volatile double time_start = omp_get_wtime();
@@ -35,4 +34,12 @@ Bmp fractal::draw_mandelbrot(int width, int height) {
     LOG_INFO("Rendering Mandelbrot finished in {:.3f} seconds", time_end - time_start);
 
     return img;
+}
+
+int main() {
+
+    Bmp image = draw_mandelbrot(3000, 3000);
+    BmpIO::save(image, "mandelbrot_set.bmp");
+
+    return 0;
 }

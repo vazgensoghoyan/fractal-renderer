@@ -1,3 +1,5 @@
+# main CMakeLists.txt in repo root
+
 cmake_minimum_required(VERSION 3.20)
 project(IheayProject VERSION 1.0 LANGUAGES CXX)
 
@@ -33,3 +35,5 @@ target_link_libraries(iheay_app iheay_lib)
 enable_testing()
 add_subdirectory(tests/googletest)
 add_subdirectory(tests)
+
+add_subdirectory(usage_examples)

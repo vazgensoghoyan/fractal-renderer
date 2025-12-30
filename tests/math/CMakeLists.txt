@@ -1,3 +1,5 @@
+# tests/math/CMakeLists.txt
+
 function(add_my_test TEST_NAME TEST_SRC)
     add_executable(${TEST_NAME} ${TEST_SRC})
     target_link_libraries(${TEST_NAME} PRIVATE iheay_lib gtest gtest_main pthread)

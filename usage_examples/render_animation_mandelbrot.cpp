@@ -60,3 +60,10 @@ void render_animation() {
 
     LOG_INFO("Animation rendering finished in {:.3f} seconds", time_end - time_start);
 }
+
+int main() {
+
+    render_animation();
+
+    return 0;
+}
