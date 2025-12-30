@@ -13,7 +13,7 @@ Bmp::Bmp(int width, int height, const std::vector<BgrPixel>& pixels)
     , m_pixels(pixels)
 { 
     if (width <= 0 || height <= 0)
-        throw std::invalid_argument("Given width or height < 0 for bmp");
+        throw std::runtime_error("Given width or height < 0 for bmp");
 }
 
 // little public fabric
@@ -42,7 +42,7 @@ int Bmp::height() const {
     
 void Bmp::set_pixel(int x, int y, BgrPixel pixel) {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
-        throw std::out_of_range("Pixel out of bounds");
+        throw std::runtime_error("Pixel out of bounds");
 
     m_pixels[y * m_width + x] = pixel;
 }
@@ -56,7 +56,7 @@ bool Bmp::try_set_pixel(int x, int y, BgrPixel pixel) {
 
 BgrPixel Bmp::get_pixel(int x, int y) const {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height)
-        throw std::out_of_range("Pixel out of bounds");
+        throw std::runtime_error("Pixel out of bounds");
 
     return m_pixels[y * m_width + x];
 }
