@@ -9,28 +9,25 @@ namespace iheay::fractal {
 
 class FractalRenderer {
 public:
-
-    // make private
     FractalRenderer(
         int width, int height,
         Viewport viewport,
+        FractalConfig config,
         IterationFunc iterate,
         InitialFunc init,
-        ParamFunc param,
-        FractalConfig config
+        ParamFunc param
     );
 
-    // TODO
-
-    iheay::bmp::Bmp render();
+    bmp::Bmp render() const;
 
 private:
-    int m_width, m_height;
+    int m_width;
+    int m_height;
     Viewport m_viewport;
+    FractalConfig m_config;
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;
-    FractalConfig m_config;
 };
-
+    
 } // namespace iheay::fractal

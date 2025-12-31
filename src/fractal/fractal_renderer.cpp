@@ -2,13 +2,13 @@
 #include "utils/logger.hpp"
 #include <omp.h>
 
-using namespace iheay::fractal;
 using namespace iheay::math;
 using namespace iheay::bmp;
+using namespace iheay::fractal;
 
-namespace {
+// local static helper
 
-inline Complex pixel_to_complex_fast(
+static inline Complex pixel_to_complex_fast(
     int x, int y,
     double real_min, double imag_max,
     double real_step, double imag_step
@@ -19,28 +19,23 @@ inline Complex pixel_to_complex_fast(
     );
 }
 
-} // namespace
-
-// public (yet) constructor
+// constructor
 
 FractalRenderer::FractalRenderer(
     int width, int height,
     Viewport viewport,
+    FractalConfig config,
     IterationFunc iterate,
     InitialFunc init,
-    ParamFunc param,
-    FractalConfig config
+    ParamFunc param
 )
-    : m_width(width)
-    , m_height(height)
-    , m_viewport(viewport)
-    , m_iterate(iterate)
-    , m_init(init)
-    , m_param(param)
-    , m_config(config)
-{ }
+: m_width(width), m_height(height)
+, m_viewport(viewport), m_config(config)
+, m_iterate(iterate), m_init(init), m_param(param) {}
 
-Bmp FractalRenderer::render() {
+// rendering
+
+Bmp FractalRenderer::render() const {
     LOG_INFO("Starting fractal rendering: {}x{}, max_iter={}, escape_radius={:.2f}",
         m_width, m_height,
         m_config.max_iter, m_config.escape_radius
@@ -60,10 +55,8 @@ Bmp FractalRenderer::render() {
 
     const double escape_radius_sq = m_config.escape_radius * m_config.escape_radius;
 
-    #pragma omp parallel for schedule(dynamic, 8)
+    #pragma omp parallel for collapse(2) schedule(dynamic, 64)
     for (int y = 0; y < m_height; ++y) {
-
-        #pragma omp simd
         for (int x = 0; x < m_width; ++x) {
 
             Complex pixel = pixel_to_complex_fast(
