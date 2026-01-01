@@ -48,7 +48,8 @@ void render_animation() {
 
         auto renderer =
             renderer_builder
-                .set_viewport(viewport)
+                .set_viewport_min(viewport.min)
+                .set_viewport_width(viewport.max.real() - viewport.min.real())
                 .set_initial_func( [](auto&) { return Complex::Zero(); } )
                 .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();

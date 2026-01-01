@@ -11,8 +11,10 @@ class FractalRenderer {
 public:
     FractalRenderer(
         int width, int height,
-        Viewport viewport,
-        FractalConfig config,
+        double viewport_width, 
+        math::Complex viewport_min,
+        int max_iter,
+        double escape_radius,
         IterationFunc iterate,
         InitialFunc init,
         ParamFunc param
@@ -23,8 +25,14 @@ public:
 private:
     int m_width;
     int m_height;
-    Viewport m_viewport;
-    FractalConfig m_config;
+
+    double m_viewport_width;
+    double m_viewport_height;
+    math::Complex m_viewport_min;
+
+    int m_max_iter;
+    double m_escape_radius;
+
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;
