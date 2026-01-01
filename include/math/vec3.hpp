@@ -84,6 +84,10 @@ public:
 
     // static methods
 
+    [[discard]] static double distance(const Vec3& a, const Vec3& b) {
+        return (a - b).length();
+    }
+
     [[nodiscard]] static constexpr double dot(const Vec3& a, const Vec3& b) noexcept {
         return a.m_x * b.m_x + a.m_y * b.m_y + a.m_z * b.m_z;
     }

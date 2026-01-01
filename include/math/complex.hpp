@@ -88,6 +88,8 @@ public:
     // pow and roots
 
     [[nodiscard]] Complex pow(int n) const { 
+        if (n < 0 && modulus_squared() <= EPS*EPS)
+            throw std::runtime_error("Zero to negative power");
         return Trigonometric(std::pow(modulus(), n), arg() * n); 
     }
 

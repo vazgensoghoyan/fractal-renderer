@@ -7,6 +7,25 @@ namespace iheay::fractal {
 
 class FractalRendererBuilder {
 public:
+    static FractalRendererBuilder get_builder();
+
+    FractalRenderer build() const;
+
+    FractalRendererBuilder& set_image_width(int width);
+    FractalRendererBuilder& set_image_height(int height);
+
+    FractalRendererBuilder& set_viewport(Viewport viewport);
+    FractalRendererBuilder& set_viewport_width(double width);
+    FractalRendererBuilder& set_viewport_min(math::Complex min);
+
+    FractalRendererBuilder& set_max_iter(int max_iter);
+    FractalRendererBuilder& set_escape_radius(double escape_radius);
+
+    FractalRendererBuilder& set_iteration_func(IterationFunc iterate);
+    FractalRendererBuilder& set_initial_func(InitialFunc init);
+    FractalRendererBuilder& set_param_func(ParamFunc param);
+
+private:
     FractalRendererBuilder(
         int width, int height,
         double viewport_width, 
@@ -18,22 +37,7 @@ public:
         ParamFunc param
     );
 
-    static FractalRendererBuilder get_builder();
-
-    FractalRenderer build() const;
-
-    FractalRendererBuilder& set_image_width(int width);
-    FractalRendererBuilder& set_image_height(int height);
-
-    FractalRendererBuilder& set_viewport_width(double width);
-    FractalRendererBuilder& set_viewport_min(math::Complex min);
-
-    FractalRendererBuilder& set_max_iter(int max_iter);
-    FractalRendererBuilder& set_escape_radius(double escape_radius);
-
-    FractalRendererBuilder& set_iteration_func(IterationFunc iterate);
-    FractalRendererBuilder& set_initial_func(InitialFunc init);
-    FractalRendererBuilder& set_param_func(ParamFunc param);
+    inline double recalc_viewport_height() const;
 
 private:
     int m_width;

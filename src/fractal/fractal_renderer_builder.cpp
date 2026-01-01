@@ -1,7 +1,16 @@
 #include "fractal/fractal_renderer_builder.hpp"
+#include <stdexcept>
 
 using namespace iheay::math;
 using namespace iheay::fractal;
+
+// private calculation viewport height
+
+inline double FractalRendererBuilder::recalc_viewport_height() const {
+    return m_viewport_width * m_height / m_width;
+}
+
+// private constructor
 
 FractalRendererBuilder::FractalRendererBuilder(
     int width, int height,
@@ -15,7 +24,7 @@ FractalRendererBuilder::FractalRendererBuilder(
 ) 
 : m_width(width), m_height(height)
 , m_viewport_width(viewport_width)
-, m_viewport_height(viewport_width * height / width)
+, m_viewport_height(recalc_viewport_height())
 , m_viewport_min(viewport_min)
 , m_max_iter(max_iter), m_escape_radius(escape_radius)
 , m_iterate(iterate), m_init(init), m_param(param) {}
@@ -47,18 +56,32 @@ FractalRenderer FractalRendererBuilder::build() const {
 }
 
 FractalRendererBuilder& FractalRendererBuilder::set_image_width(int width) {
+    if (width <= 0)
+        throw std::runtime_error("Invalid width given in fractal renderer builder");
     m_width = width;
+    m_viewport_height = recalc_viewport_height();
     return *this;
 }
 
 FractalRendererBuilder& FractalRendererBuilder::set_image_height(int height) {
+    if (height <= 0)
+        throw std::runtime_error("Invalid height given in fractal renderer builder");
     m_height = height;
+    m_viewport_height = recalc_viewport_height();
     return *this;
 }
 
+FractalRendererBuilder& FractalRendererBuilder::set_viewport(Viewport viewport) {
+    return set_viewport_width(
+                viewport.max.real() - viewport.min.real()
+            ).set_viewport_min(viewport.min);
+}
+
 FractalRendererBuilder& FractalRendererBuilder::set_viewport_width(double width) {
+    if (width <= 0)
+        throw std::runtime_error("Invalid viewport width given in fractal renderer builder");
     m_viewport_width = width;
-    m_viewport_height = width * m_height / m_width;
+    m_viewport_height = recalc_viewport_height();
     return *this;
 }
 
@@ -68,11 +91,15 @@ FractalRendererBuilder& FractalRendererBuilder::set_viewport_min(math::Complex m
 }
 
 FractalRendererBuilder& FractalRendererBuilder::set_max_iter(int max_iter) {
+    if (max_iter <= 0)
+        throw std::runtime_error("Invalid max_iter parameter given in fractal renderer builder");
     m_max_iter = max_iter;
     return *this;
 }
 
 FractalRendererBuilder& FractalRendererBuilder::set_escape_radius(double escape_radius) {
+    if (escape_radius <= 0)
+        throw std::runtime_error("Invalid escape_radius parameter given in fractal renderer builder");
     m_escape_radius = escape_radius;
     return *this;
 }

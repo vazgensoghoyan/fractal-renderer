@@ -66,7 +66,7 @@ public:
 
     [[nodiscard]] Quaternion inverse() const {
         double ms = modulus_squared();
-        if (ms <= EPS) throw std::runtime_error("Inverse of zero quaternion");
+        if (ms <= EPS * EPS) throw std::runtime_error("Inverse of zero quaternion");
         return Quaternion(~m_z0 / ms, -m_z1 / ms);
     }
 

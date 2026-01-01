@@ -87,7 +87,7 @@ Bmp FractalRenderer::render() const {
 
     const double escape_radius_sq = m_escape_radius * m_escape_radius;
 
-    #pragma omp parallel for collapse(2) schedule(dynamic, 64)
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
 

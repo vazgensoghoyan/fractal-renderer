@@ -20,7 +20,7 @@ public:
         ParamFunc param
     );
 
-    bmp::Bmp render() const;
+    [[nodiscard]] bmp::Bmp render() const;
 
 private:
     int m_width;
