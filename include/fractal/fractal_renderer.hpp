@@ -1,33 +1,30 @@
 #pragma once // fractal/fractal_renderer.hpp
 
+#include "rasterizer/pixeled_concept.hpp"
 #include "fractal/fractal_structures.hpp"
 #include "math/complex.hpp"
-#include "bmp/bmp.hpp"
-#include "rasterizer/interface_pixeled.hpp"
 
 namespace iheay::fractal {
 
+template <ColorizerConcept Colorizer>
 class FractalRenderer {
 public:
     FractalRenderer(
-        int width, int height,
-        double viewport_width, 
+        double viewport_width,
         math::Complex viewport_min,
         int max_iter,
         double escape_radius,
         IterationFunc iterate,
         InitialFunc init,
-        ParamFunc param
+        ParamFunc param,
+        Colorizer colorizer
     );
 
-    [[nodiscard]] bmp::Bmp render() const;
+    template <raster::PixeledImage Image>
+    void render(Image& image) const;
 
 private:
-    int m_width;
-    int m_height;
-
     double m_viewport_width;
-    double m_viewport_height;
     math::Complex m_viewport_min;
 
     int m_max_iter;
@@ -36,6 +33,9 @@ private:
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;
+    Colorizer m_colorizer;
 };
     
 } // namespace iheay::fractal
+
+#include "inl/fractal_renderer.inl"

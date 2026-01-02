@@ -5,46 +5,40 @@
 
 namespace iheay::fractal {
 
+template <ColorizerConcept Colorizer>
 class FractalRendererBuilder {
 public:
     static FractalRendererBuilder get_builder();
 
-    FractalRenderer build() const;
+    FractalRenderer<Colorizer> build() const;
 
-    FractalRendererBuilder& set_image_width(int width);
-    FractalRendererBuilder& set_image_height(int height);
+    FractalRendererBuilder& set_viewport(Viewport);
+    FractalRendererBuilder& set_viewport_width(double);
+    FractalRendererBuilder& set_viewport_min(math::Complex);
 
-    FractalRendererBuilder& set_viewport(Viewport viewport);
-    FractalRendererBuilder& set_viewport_width(double width);
-    FractalRendererBuilder& set_viewport_min(math::Complex min);
-
-    FractalRendererBuilder& set_max_iter(int max_iter);
-    FractalRendererBuilder& set_escape_radius(double escape_radius);
+    FractalRendererBuilder& set_max_iter(int);
+    FractalRendererBuilder& set_escape_radius(double);
 
     FractalRendererBuilder& set_iteration_func(IterationFunc iterate);
-    FractalRendererBuilder& set_initial_func(InitialFunc init);
+    FractalRendererBuilder& set_initial_func(InitialFunc initial);
     FractalRendererBuilder& set_param_func(ParamFunc param);
+
+    FractalRendererBuilder& set_colorizer(Colorizer);
 
 private:
     FractalRendererBuilder(
-        int width, int height,
-        double viewport_width, 
+        double viewport_width,
         math::Complex viewport_min,
         int max_iter,
         double escape_radius,
         IterationFunc iterate,
         InitialFunc init,
-        ParamFunc param
+        ParamFunc param,
+        Colorizer colorizer
     );
 
-    inline double recalc_viewport_height() const;
-
 private:
-    int m_width;
-    int m_height;
-
     double m_viewport_width;
-    double m_viewport_height;
     math::Complex m_viewport_min;
 
     int m_max_iter;
@@ -53,6 +47,10 @@ private:
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;
+
+    Colorizer m_colorizer;
 };
 
 } // namespace iheay::fractal
+
+#include "inl/fractal_renderer_builder.inl"

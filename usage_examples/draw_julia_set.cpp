@@ -7,17 +7,33 @@ using namespace iheay::math;
 using namespace iheay::bmp;
 using namespace iheay::fractal;
 
+struct BgrColorizer {
+    using pixel_type = BgrPixel;
+
+    BgrPixel operator()(double mu, int max_iter) const {
+        if (mu >= max_iter)
+            return {0, 0, 0};
+
+        double t = mu / max_iter;
+
+        uint8_t r = static_cast<uint8_t>(9  * (1 - t) * t * t * t * 255);
+        uint8_t g = static_cast<uint8_t>(15 * (1 - t) * (1 - t) * t * t * 255);
+        uint8_t b = static_cast<uint8_t>(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+        return {b, g, r};
+    }
+};
+
 int main() {
 
     auto renderer = 
-        FractalRendererBuilder
+        FractalRendererBuilder<BgrColorizer>
             ::get_builder()
-                .set_image_width(2000)
-                .set_image_height(2000)
                 .set_param_func([](auto&) { return Complex::Algebraic(-0.8, 0.156); })
                 .build();
 
-    Bmp image = renderer.render();
+    Bmp image = Bmp::empty(2000, 2000);
+    renderer.render(image);
 
     io::save(image, "julia_set.bmp");
 

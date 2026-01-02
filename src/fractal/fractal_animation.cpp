@@ -32,7 +32,9 @@ FractalKeyframe iheay::fractal::interpolate(
 
     double zoom = 1.0 / out.camera.scale;
 
-    out.config.max_iter = base_iter + static_cast<int>(iter_factor * std::log2(zoom));
+    out.config.max_iter = (int)(base_iter + iter_factor * std::log2(zoom));
+    if (out.config.max_iter > 2000)
+        out.config.max_iter = 2000;
 
     out.config.escape_radius = a.config.escape_radius;
 

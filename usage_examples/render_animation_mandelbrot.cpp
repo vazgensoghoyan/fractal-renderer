@@ -5,16 +5,53 @@
 #include "fractal/fractal_camera.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
+#include <filesystem>
+#include <string>
 
 using namespace iheay::bmp;
 using namespace iheay::math;
 using namespace iheay::fractal;
+
+namespace fs = std::filesystem;
+
+bool directory_exists(std::string dir_name) {
+    fs::path folder_path = dir_name;
+
+    return fs::exists(folder_path) && fs::is_directory(folder_path);
+}
+
+std::string create_new_dir_name(std::string dir_name) {
+    while (directory_exists(dir_name))
+        dir_name += '_';
+    return dir_name;
+}
+
+struct BgrColorizer {
+    using pixel_type = BgrPixel;
+
+    BgrPixel operator()(double mu, int max_iter) const {
+        if (mu >= max_iter)
+            return {0, 0, 0};
+
+        double t = mu / max_iter;
+
+        uint8_t r = static_cast<uint8_t>(9  * (1 - t) * t * t * t * 255);
+        uint8_t g = static_cast<uint8_t>(15 * (1 - t) * (1 - t) * t * t * 255);
+        uint8_t b = static_cast<uint8_t>(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+        return {b, g, r};
+    }
+};
 
 void render_animation() {
 
     const int WIDTH = 1920;
     const int HEIGHT = 1080;
     const int FRAMES_COUNT = 300;
+
+    std::string dir_name = create_new_dir_name("frames");
+    fs::path directory_path = dir_name;
+    fs::create_directory(directory_path);
 
     volatile double time_start = omp_get_wtime();
 
@@ -32,11 +69,7 @@ void render_animation() {
         Complex::Algebraic(-0.8, 0.156)
     };
 
-    auto renderer_builder = 
-        FractalRendererBuilder
-            ::get_builder()
-                .set_image_width(WIDTH)
-                .set_image_height(HEIGHT);
+    auto renderer_builder = FractalRendererBuilder<BgrColorizer>::get_builder();
 
     for (int i = 0; i < FRAMES_COUNT; ++i) {
         double t = static_cast<double>(i) / (FRAMES_COUNT - 1);
@@ -48,15 +81,15 @@ void render_animation() {
 
         auto renderer =
             renderer_builder
-                .set_viewport_min(viewport.min)
-                .set_viewport_width(viewport.max.real() - viewport.min.real())
+                .set_viewport(viewport)
                 .set_initial_func( [](auto&) { return Complex::Zero(); } )
                 .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();
 
-        Bmp image = renderer.render();
 
-        std::string filename = std::format("frames/frame_{:04}.bmp", i);
+        renderer.render(image);
+
+        std::string filename = std::format("{}/frame_{:04}.bmp", dir_name, i);
 
         io::save(image, filename);
     }

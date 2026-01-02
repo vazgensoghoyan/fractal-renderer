@@ -3,8 +3,8 @@
 
 using namespace iheay::raster;
 
-template<HasRGB PixelType>
-void iheay::raster::draw_line_dda(IPixeled<PixelType>& image, int x0, int y0, int x1, int y1, PixelType color) {
+template <PixeledImage Image>
+void draw_line_dda(Image& image, int x0, int y0, int x1, int y1, typename Image::pixel_type color) {
     int dx = x1 - x0;
     int dy = y1 - y0;
 
@@ -27,8 +27,9 @@ void iheay::raster::draw_line_dda(IPixeled<PixelType>& image, int x0, int y0, in
     }
 }
 
-template<HasRGB PixelType>
-void iheay::raster::draw_line_bresenham(IPixeled<PixelType>& image, int x0, int y0, int x1, int y1, PixelType color) {
+
+template <PixeledImage Image>
+void draw_line_bresenham(Image& image, int x0, int y0, int x1, int y1, typename Image::pixel_type color) {
     int dx = abs(x1 - x0);
     int dy = abs(y1 - y0);
 
@@ -48,8 +49,8 @@ void iheay::raster::draw_line_bresenham(IPixeled<PixelType>& image, int x0, int 
     }
 }
 
-template<HasRGB PixelType>
-void iheay::raster::fill_background(IPixeled<PixelType>& image, PixelType color) {
+template <PixeledImage Image>
+void fill_background(Image& image, typename Image::pixel_type color) {
     for (int y = 0; y < image.height(); ++y)
         for (int x = 0; x < image.width(); ++x)
             image.set_pixel(x, y, color);
