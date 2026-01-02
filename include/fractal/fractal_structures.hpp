@@ -18,8 +18,8 @@ struct FractalConfig {
 };
 
 struct Viewport {
-    math::Complex min;
-    math::Complex max;
+    double width;
+    math::Complex center;
 };
 
 using IterationFunc = std::function<math::Complex(const math::Complex& z, const math::Complex& c)>;

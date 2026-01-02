@@ -29,6 +29,8 @@ int main() {
     auto renderer = 
         FractalRendererBuilder<BgrColorizer>
             ::get_builder()
+                .set_viewport_width(3)
+                .set_viewport_center(-0.75)
                 .set_initial_func( [](auto&) { return Complex::Zero(); } )
                 .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();

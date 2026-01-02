@@ -14,7 +14,7 @@ public:
 
     FractalRendererBuilder& set_viewport(Viewport);
     FractalRendererBuilder& set_viewport_width(double);
-    FractalRendererBuilder& set_viewport_min(math::Complex);
+    FractalRendererBuilder& set_viewport_center(math::Complex);
 
     FractalRendererBuilder& set_max_iter(int);
     FractalRendererBuilder& set_escape_radius(double);
@@ -27,10 +27,8 @@ public:
 
 private:
     FractalRendererBuilder(
-        double viewport_width,
-        math::Complex viewport_min,
-        int max_iter,
-        double escape_radius,
+        FractalConfig config,
+        Viewport viewport,
         IterationFunc iterate,
         InitialFunc init,
         ParamFunc param,
@@ -38,16 +36,11 @@ private:
     );
 
 private:
-    double m_viewport_width;
-    math::Complex m_viewport_min;
-
-    int m_max_iter;
-    double m_escape_radius;
-
+    FractalConfig m_config;
+    Viewport m_viewport;
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;
-
     Colorizer m_colorizer;
 };
 

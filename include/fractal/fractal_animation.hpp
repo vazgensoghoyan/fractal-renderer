@@ -1,11 +1,11 @@
 #pragma once // fractal/fractal_animation.hpp
 
-#include "fractal/fractal_camera.hpp"
+#include "fractal/fractal_structures.hpp"
 
 namespace iheay::fractal {
 
 struct FractalKeyframe {
-    FractalCamera camera;
+    Viewport viewport;
     FractalConfig config;
     math::Complex julia_c;
 };

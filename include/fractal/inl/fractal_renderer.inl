@@ -9,24 +9,23 @@ namespace iheay::fractal {
 
 template <ColorizerConcept Colorizer>
 FractalRenderer<Colorizer>::FractalRenderer(
-    double viewport_width, 
-    math::Complex viewport_min,
-    int max_iter,
-    double escape_radius,
+    FractalConfig config,
+    Viewport viewport,
     IterationFunc iterate,
     InitialFunc init,
     ParamFunc param,
     Colorizer colorizer
 )
-: m_viewport_width(viewport_width)
-, m_viewport_min(viewport_min)
-, m_max_iter(max_iter), m_escape_radius(escape_radius)
-, m_iterate(iterate), m_init(init)
-, m_param(param), m_colorizer(colorizer) {}
+: m_config(config)
+, m_viewport(viewport)
+, m_iterate(iterate)
+, m_init(init)
+, m_param(param)
+, m_colorizer(colorizer) {}
 
 // local static helpers
 
-static inline math::Complex pixel_to_complex_fast(
+static inline math::Complex pixel_to_complex(
     int x, int y,
     double real_min, double imag_max,
     double real_step, double imag_step
@@ -58,34 +57,32 @@ template <raster::PixeledImage Image>
 void FractalRenderer<Colorizer>::render(Image& image) const {
     LOG_INFO("Starting fractal rendering: {}x{}, max_iter={}, escape_radius={:.2f}",
         image.width(), image.height(),
-        m_max_iter, m_escape_radius
+        m_config.max_iter, m_config.escape_radius
     );
 
     volatile double time_start = omp_get_wtime();
 
-    const double viewport_height = m_viewport_width * image.height() / image.width();
+    const double viewport_height = m_viewport.width * image.height() / image.width();
 
-    const double real_min = m_viewport_min.real();
-    const double real_max = real_min + m_viewport_width;
-    const double imag_min = m_viewport_min.imag();
-    const double imag_max = imag_min + viewport_height;
+    const double vp_min_real = m_viewport.center.real() - m_viewport.width / 2;
+    const double vp_max_imag = m_viewport.center.imag() + viewport_height / 2;
 
-    const double real_step = (real_max - real_min) / (image.width()  - 1);
-    const double imag_step = (imag_max - imag_min) / (image.height() - 1);
+    const double real_step = m_viewport.width / (image.width()  - 1);
+    const double imag_step = viewport_height / (image.height() - 1);
 
-    const double escape_radius_sq = m_escape_radius * m_escape_radius;
+    const double escape_radius_sq = m_config.escape_radius * m_config.escape_radius;
 
     #pragma omp parallel for collapse(2) schedule(static)
     for (int y = 0; y < image.height(); ++y) {
         for (int x = 0; x < image.width(); ++x) {
 
-            math::Complex pixel = pixel_to_complex_fast(x, y, real_min, imag_max, real_step, imag_step);
+            math::Complex pixel = pixel_to_complex(x, y, vp_min_real, vp_max_imag, real_step, imag_step);
 
             math::Complex z = m_init(pixel);
             math::Complex c = m_param(pixel);
 
             int iter = 0;
-            while (iter < m_max_iter) {
+            while (iter < m_config.max_iter) {
                 const double zr = z.real();
                 const double zi = z.imag();
 
@@ -97,9 +94,9 @@ void FractalRenderer<Colorizer>::render(Image& image) const {
                 ++iter;
             }
 
-            double mu = calc_mu(z, iter, m_max_iter);
+            double mu = calc_mu(z, iter, m_config.max_iter);
 
-            image.set_pixel(x, y, m_colorizer(mu, m_max_iter));
+            image.set_pixel(x, y, m_colorizer(mu, m_config.max_iter));
         }
     }
 

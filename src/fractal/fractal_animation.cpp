@@ -21,16 +21,16 @@ FractalKeyframe iheay::fractal::interpolate(
 ) {
     FractalKeyframe out;
 
-    out.camera.center = lerp(a.camera.center, b.camera.center, t);
+    out.viewport.center = lerp(a.viewport.center, b.viewport.center, t);
 
     //out.camera.scale = a.camera.scale * std::pow(b.camera.scale / a.camera.scale, t);
-    out.camera.scale =
-        a.camera.scale * std::exp(t * std::log(b.camera.scale / a.camera.scale));
+    out.viewport.width =
+        a.viewport.width * std::exp(t * std::log(b.viewport.width / a.viewport.width));
 
     int base_iter = 200;
     double iter_factor = 50.0;
 
-    double zoom = 1.0 / out.camera.scale;
+    double zoom = 1.0 / out.viewport.width;
 
     out.config.max_iter = (int)(base_iter + iter_factor * std::log2(zoom));
     if (out.config.max_iter > 2000)

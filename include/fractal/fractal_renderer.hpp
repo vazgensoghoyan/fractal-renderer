@@ -10,10 +10,8 @@ template <ColorizerConcept Colorizer>
 class FractalRenderer {
 public:
     FractalRenderer(
-        double viewport_width,
-        math::Complex viewport_min,
-        int max_iter,
-        double escape_radius,
+        FractalConfig config,
+        Viewport viewport,
         IterationFunc iterate,
         InitialFunc init,
         ParamFunc param,
@@ -24,12 +22,8 @@ public:
     void render(Image& image) const;
 
 private:
-    double m_viewport_width;
-    math::Complex m_viewport_min;
-
-    int m_max_iter;
-    double m_escape_radius;
-
+    FractalConfig m_config;
+    Viewport m_viewport;
     IterationFunc m_iterate;
     InitialFunc m_init;
     ParamFunc m_param;

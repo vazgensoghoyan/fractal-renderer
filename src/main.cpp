@@ -1,12 +1,12 @@
 #include "bmp/bmp.hpp"
 #include "bmp/io/bmp_io.hpp"
 #include "fractal/fractal_renderer.hpp"
-#include "fractal/fractal_camera.hpp"
-#include "fractal/fractal_animation.hpp"
+#include "fractal/fractal_renderer_builder.hpp"
 #include "math/complex.hpp"
 #include "math/vec3.hpp"
 #include "math/ray.hpp"
 #include "ray_tracing/objects/sphere.hpp"
+#include "adapters/raylib_image_adapter.hpp"
 #include "utils/logger.hpp"
 #include <format>
 #include <omp.h>
@@ -49,6 +49,7 @@ Color ray_color(const math::Ray& ray) {
 }
 
 void render_scene(Texture2D &texture, int width, int height) {
+
     Image image = GenImageColor(width, height, BLACK);
 
     const double viewport_height = 2.0;
@@ -65,7 +66,8 @@ void render_scene(Texture2D &texture, int width, int height) {
 
     const Vec3 viewport_upper_left = camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
     const Vec3 pixel_00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) / 2;
-
+    
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
             Vec3 pixel_center = pixel_00_loc + i * pixel_delta_u + j * pixel_delta_v;
@@ -82,28 +84,66 @@ void render_scene(Texture2D &texture, int width, int height) {
     UnloadImage(image);
 }
 
+struct Colorizer {
+    using pixel_type = Color;
+
+    Color operator()(double mu, int max_iter) const {
+        if (mu >= max_iter)
+            return {0, 0, 0};
+
+        double t = mu / max_iter;
+
+        uint8_t r = static_cast<uint8_t>(9  * (1 - t) * t * t * t * 255);
+        uint8_t g = static_cast<uint8_t>(15 * (1 - t) * (1 - t) * t * t * 255);
+        uint8_t b = static_cast<uint8_t>(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
+
+        return {r, g, b, 255};
+    }
+};
+
+void render_scene2(Texture2D &texture, int width, int height) {
+    static auto renderer = 
+        FractalRendererBuilder<Colorizer>
+            ::get_builder()
+                .set_viewport_width(3)
+                .set_viewport_center(-0.75)
+                .set_initial_func( [](auto&) { return Complex::Zero(); } )
+                .set_param_func( [](auto& pixel) { return pixel; } )
+                .build();
+
+    Image img = GenImageColor(width, height, BLACK);
+
+    adapters::RaylibImageAdapter adapter(img);
+    
+    renderer.render(adapter);
+
+    UnloadTexture(texture);
+    texture = LoadTextureFromImage(img);
+    UnloadImage(img);
+}
+
 int main() {
 
     try {
 
-        InitWindow(1000, 600, "Set Pixel Example");
+        InitWindow(1000, 600, "Fractal Example");
         SetWindowState(FLAG_WINDOW_RESIZABLE);
         SetTraceLogLevel(LOG_WARNING);
 
         Texture2D texture = {0};
 
-        render_scene(texture, GetScreenWidth(), GetScreenHeight());
+        render_scene2(texture, GetScreenWidth(), GetScreenHeight());
 
         while (!WindowShouldClose()) {
             int w = GetScreenWidth();
             int h = GetScreenHeight();
 
             if (texture.width != w || texture.height != h) {
-                render_scene(texture, w, h);
+                render_scene2(texture, w, h);
             }
 
             BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground(BLACK);
             DrawTexture(texture, 0, 0, WHITE);
             EndDrawing();
         }

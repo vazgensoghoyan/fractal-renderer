@@ -2,7 +2,6 @@
 #include "bmp/io/bmp_io.hpp"
 #include "fractal/fractal_renderer_builder.hpp"
 #include "fractal/fractal_animation.hpp"
-#include "fractal/fractal_camera.hpp"
 #include "utils/logger.hpp"
 #include <omp.h>
 #include <filesystem>
@@ -58,13 +57,13 @@ void render_animation() {
     Bmp image = Bmp::empty(WIDTH, HEIGHT);
 
     FractalKeyframe start {
-        { Complex::Algebraic(-0.75, 0.0), 2.5 },
+        { 2.5, Complex::Algebraic(-0.75, 0.0) },
         { 300, 2.0 },
         Complex::Algebraic(-0.8, 0.156)
     };
 
     FractalKeyframe end {
-        { Complex::Algebraic(-0.74364388703, 0.13182590421), 0.0005 },
+        { 0.0005, Complex::Algebraic(-0.74364388703, 0.13182590421) },
         { 2000, 2.0 },
         Complex::Algebraic(-0.8, 0.156)
     };
@@ -75,13 +74,12 @@ void render_animation() {
         double t = static_cast<double>(i) / (FRAMES_COUNT - 1);
 
         auto key = interpolate(start, end, t);
-        auto viewport = make_viewport(key.camera, WIDTH, HEIGHT);
 
         LOG_INFO("Rendering frame {} / {}", i, FRAMES_COUNT);
 
         auto renderer =
             renderer_builder
-                .set_viewport(viewport)
+                .set_viewport(key.viewport)
                 .set_initial_func( [](auto&) { return Complex::Zero(); } )
                 .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();
