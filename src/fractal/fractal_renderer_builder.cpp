@@ -32,15 +32,20 @@ FractalRendererBuilder::FractalRendererBuilder(
 // static getting builder
 
 FractalRendererBuilder FractalRendererBuilder::get_builder() {
+
+    static IterationFunc default_iterate = [](const Complex& z, const Complex& c) { return z * z + c; };
+    static InitialFunc default_init = [](const Complex& pixel) { return pixel; };
+    static ParamFunc default_param = [](const Complex&) { return Complex::Zero(); };
+
     // setting up init values for all properties
     return FractalRendererBuilder(
-        256, 256,
-        3,
-        Complex::Algebraic(-2.0, -1.5),
-        300, 2.0,
-        [](auto& z, auto& c) { return z * z + c; },
-        [](auto& pixel) { return pixel; },
-        [](auto&) { return Complex::Zero(); }
+        256, 256,                           // width and height
+        3,                                  // viewport height
+        Complex::Algebraic(-2.0, -1.5),     // viewport left bottom
+        300, 2.0,                           // max_iter and escape_radius
+        default_iterate,
+        default_init,
+        default_param
     );
 }
 

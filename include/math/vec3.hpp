@@ -84,7 +84,7 @@ public:
 
     // static methods
 
-    [[discard]] static double distance(const Vec3& a, const Vec3& b) {
+    [[nodiscard]] static double distance(const Vec3& a, const Vec3& b) {
         return (a - b).length();
     }
 

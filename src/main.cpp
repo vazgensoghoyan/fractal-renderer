@@ -1,25 +1,49 @@
 #include "bmp/bmp.hpp"
 #include "bmp/io/bmp_io.hpp"
-
 #include "fractal/fractal_renderer.hpp"
 #include "fractal/fractal_camera.hpp"
 #include "fractal/fractal_animation.hpp"
-
 #include "math/complex.hpp"
 #include "math/vec3.hpp"
 #include "math/ray.hpp"
-
 #include "ray_tracing/objects/sphere.hpp"
-
 #include "utils/logger.hpp"
-
 #include <format>
 #include <omp.h>
+#include "raylib.h"
 
+using namespace iheay;
 using namespace iheay::bmp;
 using namespace iheay::math;
 using namespace iheay::fractal;
 using namespace iheay::ray_tracing;
+
+
+int main() {
+
+    try {
+
+        InitWindow(800, 450, "raylib [core] example - basic window");
+
+        while (!WindowShouldClose())
+        {
+            BeginDrawing();
+                ClearBackground(RAYWHITE);
+                DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            EndDrawing();
+        }
+
+        CloseWindow();
+
+    } catch (const std::exception& e) {
+
+        LOG_ERROR("Exception: {}", e.what());
+        return 1;
+
+    }
+
+    return 0;
+}
 
 BgrPixel vec3_to_pixel(const Vec3& vec) {
     if (vec.x() < 0 || vec.y() < 0 || vec.z() < 0)
@@ -34,7 +58,7 @@ BgrPixel vec3_to_pixel(const Vec3& vec) {
     return { b, g, r };
 }
 
-BgrPixel ray_color(const Ray& ray) {
+BgrPixel ray_color(const math::Ray& ray) {
     objects::Sphere sphere( {0,0,-1}, 0.5 );
     std::optional<HitRecord> rec = sphere.hit(ray, 0, 100000000);
 
@@ -51,50 +75,39 @@ BgrPixel ray_color(const Ray& ray) {
     return vec3_to_pixel(color);
 }
 
-int main() {
-    try {
+void ray_tracing() {
+    double aspect_ratio = 16.0 / 9.0;
 
-        double aspect_ratio = 16.0 / 9.0;
+    int image_width = 400;
+    int image_height = int(image_width / aspect_ratio);
 
-        int image_width = 400;
-        int image_height = int(image_width / aspect_ratio);
+    double viewport_height = 2.0;
+    double viewport_width = viewport_height * image_width / image_height;
 
-        double viewport_height = 2.0;
-        double viewport_width = viewport_height * image_width / image_height;
+    double focal_length = 1.0;
+    Vec3 camera_center = Vec3(0, 0, 0);
 
-        double focal_length = 1.0;
-        Vec3 camera_center = Vec3(0, 0, 0);
+    Vec3 viewport_u = Vec3(viewport_width, 0, 0);
+    Vec3 viewport_v = Vec3(0, -viewport_height, 0);
 
-        Vec3 viewport_u = Vec3(viewport_width, 0, 0);
-        Vec3 viewport_v = Vec3(0, -viewport_height, 0);
+    Vec3 pixel_delta_u = viewport_u / image_width;
+    Vec3 pixel_delta_v = viewport_v / image_height;
 
-        Vec3 pixel_delta_u = viewport_u / image_width;
-        Vec3 pixel_delta_v = viewport_v / image_height;
+    Vec3 viewport_upper_left = camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+    Vec3 pixel_00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) / 2;
 
-        Vec3 viewport_upper_left = camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
-        Vec3 pixel_00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) / 2;
+    Bmp image = Bmp::empty(image_width, image_height);
 
-        Bmp image = Bmp::empty(image_width, image_height);
+    for (int i = 0; i < image_width; ++i) {
+        for (int j = 0; j < image_height; ++j) {
+            Vec3 pixel_center = pixel_00_loc + i * pixel_delta_u + j * pixel_delta_v;
+            Vec3 ray_direction = pixel_center - camera_center;
 
-        for (int i = 0; i < image_width; ++i) {
-            for (int j = 0; j < image_height; ++j) {
-                Vec3 pixel_center = pixel_00_loc + i * pixel_delta_u + j * pixel_delta_v;
-                Vec3 ray_direction = pixel_center - camera_center;
+            math::Ray ray = math::Ray(camera_center, ray_direction);
 
-                Ray ray = Ray(camera_center, ray_direction);
-
-                image.set_pixel(i, j, ray_color(ray));
-            }
+            image.set_pixel(i, j, ray_color(ray));
         }
-
-        io::save(image, "../ray_tracing.bmp");
-
-    } catch (const std::exception& e) {
-
-        LOG_ERROR("Exception: {}", e.what());
-        return 1;
-
     }
 
-    return 0;
+    io::save(image, "../ray_tracing.bmp");
 }
