@@ -19,13 +19,16 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ make
-
+        sudo apt-get install -y cmake g++ make \
+        libasound2-dev libx11-dev libxrandr-dev libxi-dev \
+        libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev \
+        libxinerama-dev libwayland-dev libxkbcommon-dev
+        
     - name: Create build directory
       run: mkdir -p build
 
     - name: Configure CMake
-      run: cmake -S . -B build
+      run: cmake -S . -B build DCMAKE_BUILD_TYPE=Release
 
     - name: Build
       run: cmake --build build -- -j$(nproc)
