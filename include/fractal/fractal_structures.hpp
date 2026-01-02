@@ -6,8 +6,8 @@
 namespace iheay::fractal {
 
 struct FractalConfig {
-    int max_iter = 300;
-    double escape_radius = 2.0;
+    int max_iter;
+    double escape_radius;
 };
 
 struct Viewport {

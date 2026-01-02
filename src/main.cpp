@@ -18,34 +18,7 @@ using namespace iheay::math;
 using namespace iheay::fractal;
 using namespace iheay::ray_tracing;
 
-
-int main() {
-
-    try {
-
-        InitWindow(800, 450, "raylib [core] example - basic window");
-
-        while (!WindowShouldClose())
-        {
-            BeginDrawing();
-                ClearBackground(RAYWHITE);
-                DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-            EndDrawing();
-        }
-
-        CloseWindow();
-
-    } catch (const std::exception& e) {
-
-        LOG_ERROR("Exception: {}", e.what());
-        return 1;
-
-    }
-
-    return 0;
-}
-
-BgrPixel vec3_to_pixel(const Vec3& vec) {
+Color vec3_to_pixel(const Vec3& vec) {
     if (vec.x() < 0 || vec.y() < 0 || vec.z() < 0)
         throw std::runtime_error("Can't transform from math::Vec3 to bmp::Pixel");
 
@@ -55,10 +28,10 @@ BgrPixel vec3_to_pixel(const Vec3& vec) {
     uint8_t g = uint8_t(255.999 * vec_norm.y());
     uint8_t b = uint8_t(255.999 * vec_norm.z());
 
-    return { b, g, r };
+    return { r, g, b, 255 };
 }
 
-BgrPixel ray_color(const math::Ray& ray) {
+Color ray_color(const math::Ray& ray) {
     objects::Sphere sphere( {0,0,-1}, 0.5 );
     std::optional<HitRecord> rec = sphere.hit(ray, 0, 100000000);
 
@@ -75,39 +48,75 @@ BgrPixel ray_color(const math::Ray& ray) {
     return vec3_to_pixel(color);
 }
 
-void ray_tracing() {
-    double aspect_ratio = 16.0 / 9.0;
+void render_scene(Texture2D &texture, int width, int height) {
+    Image image = GenImageColor(width, height, BLACK);
 
-    int image_width = 400;
-    int image_height = int(image_width / aspect_ratio);
+    const double viewport_height = 2.0;
+    const double viewport_width = viewport_height * width / height;
 
-    double viewport_height = 2.0;
-    double viewport_width = viewport_height * image_width / image_height;
+    const double focal_length = 1.0;
+    const Vec3 camera_center = Vec3(0, 0, 0);
 
-    double focal_length = 1.0;
-    Vec3 camera_center = Vec3(0, 0, 0);
+    const Vec3 viewport_u = Vec3(viewport_width, 0, 0);
+    const Vec3 viewport_v = Vec3(0, viewport_height, 0);
 
-    Vec3 viewport_u = Vec3(viewport_width, 0, 0);
-    Vec3 viewport_v = Vec3(0, -viewport_height, 0);
+    const Vec3 pixel_delta_u = viewport_u / width;
+    const Vec3 pixel_delta_v = viewport_v / height;
 
-    Vec3 pixel_delta_u = viewport_u / image_width;
-    Vec3 pixel_delta_v = viewport_v / image_height;
+    const Vec3 viewport_upper_left = camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
+    const Vec3 pixel_00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) / 2;
 
-    Vec3 viewport_upper_left = camera_center - Vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
-    Vec3 pixel_00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) / 2;
-
-    Bmp image = Bmp::empty(image_width, image_height);
-
-    for (int i = 0; i < image_width; ++i) {
-        for (int j = 0; j < image_height; ++j) {
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
             Vec3 pixel_center = pixel_00_loc + i * pixel_delta_u + j * pixel_delta_v;
             Vec3 ray_direction = pixel_center - camera_center;
 
             math::Ray ray = math::Ray(camera_center, ray_direction);
 
-            image.set_pixel(i, j, ray_color(ray));
+            ImageDrawPixel(&image, i, height - 1 - j, ray_color(ray));
         }
     }
 
-    io::save(image, "../ray_tracing.bmp");
+    UnloadTexture(texture);
+    texture = LoadTextureFromImage(image);
+    UnloadImage(image);
+}
+
+int main() {
+
+    try {
+
+        InitWindow(1000, 600, "Set Pixel Example");
+        SetWindowState(FLAG_WINDOW_RESIZABLE);
+        SetTraceLogLevel(LOG_WARNING);
+
+        Texture2D texture = {0};
+
+        render_scene(texture, GetScreenWidth(), GetScreenHeight());
+
+        while (!WindowShouldClose()) {
+            int w = GetScreenWidth();
+            int h = GetScreenHeight();
+
+            if (texture.width != w || texture.height != h) {
+                render_scene(texture, w, h);
+            }
+
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            DrawTexture(texture, 0, 0, WHITE);
+            EndDrawing();
+        }
+
+        UnloadTexture(texture);
+        CloseWindow();
+
+    } catch (const std::exception& e) {
+
+        LOG_ERROR("Exception: {}", e.what());
+        return 1;
+
+    }
+
+    return 0;
 }

@@ -37,7 +37,7 @@ endif()
 
 # Тесты
 enable_testing()
-add_subdirectory(tests/googletest)
+add_subdirectory(external/googletest)
 add_subdirectory(tests)
 
 # Примеры использования
