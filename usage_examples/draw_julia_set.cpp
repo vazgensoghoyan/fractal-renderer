@@ -32,7 +32,7 @@ int main() {
                 .set_param_func([](auto&) { return Complex::Algebraic(-0.8, 0.156); })
                 .build();
 
-    Bmp image = Bmp::empty(2000, 2000);
+    Bmp image = Bmp::empty(1500, 1500);
     renderer.render(image);
 
     io::save(image, "julia_set.bmp");

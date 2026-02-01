@@ -20,6 +20,7 @@ The project demonstrates:
 
 ## Table of Contents
 
+- [Render Examples](#render-examples)
 - [Example usage](#example-usage)
 - [Build](#build)
 - [Repository Structure](#repository-structure)
@@ -35,6 +36,14 @@ The project demonstrates:
 - [Architectural Highlights](#architectural-highlights)
 - [Limitations](#limitations)
 - [Future Directions](#future-directions)
+
+---
+
+### Render Examples
+
+| Mandelbrot | Julia |
+|-----------|-------|
+| ![](usage_examples/results/mandelbrot_set.bmp) | ![](usage_examples/results/julia_set.bmp) |
 
 ---
 
@@ -337,5 +346,3 @@ Unit tests with **GoogleTest** cover:
 * Multithreaded tiling
 * Interactive viewer with sliders (SDL / ImGui)
 * 3D fractals using quaternions
-
-# THANK YOU

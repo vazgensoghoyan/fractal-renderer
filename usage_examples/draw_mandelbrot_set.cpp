@@ -36,7 +36,7 @@ int main() {
                 .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();
 
-    Bmp image = Bmp::empty(2000, 2000);
+    Bmp image = Bmp::empty(1500, 1500);
     renderer.render(image);
 
     io::save(image, "mandelbrot_set.bmp");
