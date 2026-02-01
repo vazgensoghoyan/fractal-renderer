@@ -57,18 +57,22 @@ void render_animation() {
     Bmp image = Bmp::empty(WIDTH, HEIGHT);
 
     FractalKeyframe start {
-        { 2.5, Complex::Algebraic(-0.75, 0.0) },
+        { 5, Complex::Algebraic(-0.75, 0.0) },
         { 300, 2.0 },
         Complex::Algebraic(-0.8, 0.156)
     };
 
     FractalKeyframe end {
-        { 0.0005, Complex::Algebraic(-0.74364388703, 0.13182590421) },
+        { 0.001, Complex::Algebraic(-0.74364388703, 0.13182590421) },
         { 2000, 2.0 },
         Complex::Algebraic(-0.8, 0.156)
     };
 
-    auto renderer_builder = FractalRendererBuilder<BgrColorizer>::get_builder();
+    auto renderer_builder = 
+        FractalRendererBuilder<BgrColorizer>
+            ::get_builder()
+                .set_initial_func( [](auto&) { return Complex::Zero(); } )
+                .set_param_func( [](auto& pixel) { return pixel; } );
 
     for (int i = 0; i < FRAMES_COUNT; ++i) {
         double t = static_cast<double>(i) / (FRAMES_COUNT - 1);
@@ -80,10 +84,7 @@ void render_animation() {
         auto renderer =
             renderer_builder
                 .set_viewport(key.viewport)
-                .set_initial_func( [](auto&) { return Complex::Zero(); } )
-                .set_param_func( [](auto& pixel) { return pixel; } )
                 .build();
-
 
         renderer.render(image);
 
