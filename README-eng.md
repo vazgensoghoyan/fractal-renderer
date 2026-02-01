@@ -18,6 +18,26 @@ The project demonstrates:
 
 ---
 
+## Table of Contents
+
+- [Example usage](#example-usage)
+- [Build](#build)
+- [Repository Structure](#repository-structure)
+- [Main Features](#main-features)
+  - [Math Engine](#math-engine)
+  - [Image Handling (BMP)](#image-handling-bmp)
+  - [Fractal Renderer](#fractal-renderer)
+  - [Fractal Animation](#fractal-animation)
+  - [Generic Rendering via Concepts](#generic-rendering-via-concepts)
+  - [Logging](#logging)
+- [Technologies Used](#technologies-used)
+- [Testing](#testing)
+- [Architectural Highlights](#architectural-highlights)
+- [Limitations](#limitations)
+- [Future Directions](#future-directions)
+
+---
+
 ### Example Usage
 
 The renderer is created via a **Fluent Builder** pattern. A specific `BgrColorizer` structure implements the required concept for fractal coloring. Some properties are set for the renderer (viewport, functions, etc.) and then we build it.
@@ -43,7 +63,36 @@ io::save(image, "mandelbrot_set.bmp");
 
 ---
 
-## 📁 Repository Structure
+## Build
+
+```bash
+git clone --recurse-submodules git@github.com:vazgensoghoyan/fractal-renderer.git
+cd fractal-renderer
+
+mkdir build && cd build   # creating /build/ folder
+cmake ..                  # generating build with cmake
+cmake --build .           # building all targets (library + app + tests + examples)
+ctest                     # (optionally) executing tests
+```
+
+After the complete build, we have the following executable files:
+
+* `./iheay_app`
+* usage_examples/
+  * `./draw_julia_set`
+  * `./draw_mandelbrot_set`
+  * `./render_animation_mandelbrot`
+* tests/
+  * bmp/
+    * `./test_bmp`
+  * math/
+    * `./test_vec3`
+    * `./test_complex`
+    * `./test_quaternion`
+
+---
+
+## Repository Structure
 
 ```
 fractal-renderer/
@@ -84,7 +133,7 @@ fractal-renderer/
 
 ## Main Features
 
-### 🧠 Math Engine
+### Math Engine
 
 Custom implementation of mathematical primitives (here is a brief overview of one):
 
@@ -110,7 +159,7 @@ This engine can be used independently of fractals — as a lightweight library f
 
 ---
 
-### 🖼 Image Handling (BMP)
+### Image Handling (BMP)
 
 A minimalist module for working with **24-bit BMPs**:
 
@@ -148,7 +197,7 @@ io::save(image, "some/unique/path");
 
 ---
 
-### 🌌 Fractal Renderer
+### Fractal Renderer
 
 A **generic fractal rendering engine** that is independent of image format or fractal formula — both are supplied externally via template parameters:
 
@@ -165,7 +214,7 @@ Enables building:
 * Julia sets
 * Custom fractals with arbitrary formulas
 
-#### 🎨 Coloring System (Colorizer Concept)
+#### Coloring System (Colorizer Concept)
 
 C++ concepts enforce the requirements for colorizers:
 
@@ -182,7 +231,7 @@ This allows **any image type** satisfying the `PixeledImage` concept to be used.
 
 ---
 
-### 🎞 Fractal Animation
+### Fractal Animation
 
 A **keyframe system** is implemented:
 
@@ -204,7 +253,7 @@ This is the foundation for zoom animations and fractal morphing.
 
 ---
 
-### 🧵 Generic Rendering via Concepts
+### Generic Rendering via Concepts
 
 Renderer works with any image type that satisfies:
 
@@ -222,7 +271,7 @@ This completely separates fractal logic from the way images are stored or output
 
 ---
 
-### 🧾 Logging
+### Logging
 
 Minimal thread-safe logger:
 
@@ -239,7 +288,7 @@ Can be fully disabled via `LOGGING_ENABLED` for performance-critical builds.
 
 ---
 
-## 🛠 Technologies Used
+## Technologies Used
 
 * C++20/23
 * Concepts
@@ -250,7 +299,7 @@ Can be fully disabled via `LOGGING_ENABLED` for performance-critical builds.
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Unit tests with **GoogleTest** cover:
 
@@ -259,7 +308,7 @@ Unit tests with **GoogleTest** cover:
 
 ---
 
-## 📌 Architectural Highlights
+## Architectural Highlights
 
 ✔ Separation of math, rendering, and output
 ✔ Minimal dependencies
@@ -274,7 +323,7 @@ Unit tests with **GoogleTest** cover:
 
 ---
 
-## ⚠ Limitations
+## Limitations
 
 * Only **24-bit uncompressed BMP** supported
 * Structure alignment is little-endian oriented (typical x86)
@@ -282,7 +331,7 @@ Unit tests with **GoogleTest** cover:
 
 ---
 
-## 📈 Future Directions
+## Future Directions
 
 * GPU rendering (CUDA / OpenCL)
 * Multithreaded tiling
