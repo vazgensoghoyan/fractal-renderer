@@ -1,6 +1,6 @@
 #pragma once // fractal/fractal_renderer.hpp
 
-#include "rasterizer/pixeled_concept.hpp"
+#include "fractal/pixeled_concept.hpp"
 #include "fractal/fractal_structures.hpp"
 #include "math/complex.hpp"
 
@@ -18,7 +18,7 @@ public:
         Colorizer colorizer
     );
 
-    template <raster::PixeledImage Image>
+    template <PixeledImage Image>
     void render(Image& image) const;
 
 private:

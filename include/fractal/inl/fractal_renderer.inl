@@ -53,7 +53,7 @@ static double calc_mu(math::Complex z, double iter, int max_iter) {
 // rendering
 
 template <ColorizerConcept Colorizer>
-template <raster::PixeledImage Image>
+template <PixeledImage Image>
 void FractalRenderer<Colorizer>::render(Image& image) const {
     LOG_INFO("Starting fractal rendering: {}x{}, max_iter={}, escape_radius={:.2f}",
         image.width(), image.height(),

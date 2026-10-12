@@ -1,9 +1,8 @@
-#pragma once // rasterizer/pixeled_concept.hpp
+#pragma once // fractal/pixeled_concept.hpp
 
 #include <concepts>
-#include <type_traits>
 
-namespace iheay::raster {
+namespace iheay::fractal {
 
 template<typename Image>
 concept PixeledImage = requires(Image image, int x, int y, Image::pixel_type pixel) {
@@ -15,4 +14,4 @@ concept PixeledImage = requires(Image image, int x, int y, Image::pixel_type pix
     { image.set_pixel(x, y, pixel) };
 };
 
-} // namespace iheay::raster
+} // namespace iheay::fractal

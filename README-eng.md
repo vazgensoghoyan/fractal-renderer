@@ -115,7 +115,6 @@ fractal-renderer/
 │   ├── bmp/            # BMP image structs and loading/saving
 │   ├── fractal/        # Fractal generation algorithms
 │   ├── math/           # Vec3, Complex, Quaternion, Ray
-│   ├── rasterizer/     # Concept PixeledImage and rasterization algs for it
 │   ├── ray_tracing/    # Ray tracing engine and related structures
 │   └── utils/          # Shared helpers and utilities (currently only Logger)
 │
@@ -263,6 +262,8 @@ This is the foundation for zoom animations and fractal morphing.
 ---
 
 ### Generic Rendering via Concepts
+
+`iheay::fractal::PixeledImage` is defined in `include/fractal/pixeled_concept.hpp`.
 
 Renderer works with any image type that satisfies:
 

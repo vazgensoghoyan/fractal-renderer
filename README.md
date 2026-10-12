@@ -115,7 +115,6 @@ fractal-renderer/
 │   ├── bmp/            # структуры формата BMP и IO-функционал
 │   ├── fractal/        # алгоритмы рендера фракталов
 │   ├── math/           # Vec3, Complex, Quaternion, Ray
-│   ├── rasterizer/     # концепт PixeledImage и алгоритмы растеризации к нему
 │   ├── ray_tracing/    # движок рей трейсинга (пока почти пуст)
 │   └── utils/          # пока тут лишь Logger
 │
@@ -263,6 +262,8 @@ FractalKeyframe k = interpolate(a, b, t);
 ---
 
 ### Обобщённый рендеринг через Concepts
+
+`iheay::fractal::PixeledImage` определён в `include/fractal/pixeled_concept.hpp`.
 
 Рендерер работает с любым типом изображения, удовлетворяющим:
 
